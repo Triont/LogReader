@@ -1,0 +1,95 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using WebApplication25.ModelView;
+@using System.Text;
+@model MainModelView
+@{
+}
+
+
+  <table class="table table-striped">
+              <thead>
+    <tr>
+    
+      <th scope="col">Id</th>
+      <th scope="col">Date</th>
+      <th scope="col">Time</th>
+       <th scope="col">Request type</th>
+      
+        <th scope="col">Path</th>
+        <th scope="col">Ip</th>
+    
+        <th scope="col">Company name</th>
+         <th scope="col">Data volume</th>
+         <th scope="col">Request result</th>
+      
+  
+  
+    </tr>
+  </thead>
+        
+        @foreach(var i in Model.MainTables)
+        {
+          
+               <tr>
+                   
+                  <td>
+                      
+                      @i.Id
+                  </td>
+                  <td>
+                      @i.DateTime.Date.ToShortDateString()
+                  </td>
+                  <td>
+                      @i.DateTime.ToLongTimeString()
+                  </td>
+                  <td>
+                      @i.RequestType
+                  </td>
+               
+                  <td>
+                    <p style="font-size:12px">  @i.FilesInfo.Path</p>
+                  </td>
+                  <td>
+                      @Encoding.ASCII.GetString(i._IPinfo.IPAddress)
+                  </td>
+                  <td>
+                      @i._IPinfo.CompanyName
+                  </td>
+                  <td>
+                      @i.DataVolume
+                  </td>
+                  <td>
+                      @i.RequestResult
+                  </td>
+                
+               </tr>
+
+           
+                
+        }
+           </table>
+
+
+
+@section Scripts
+{
+    <script src="~lib/jquery/dist/jquery.js"></script>
+    <script>
+        $('th').click(function(){
+    var table = $(this).parents('table').eq(0)
+    var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()))
+    this.asc = !this.asc
+    if (!this.asc){rows = rows.reverse()}
+    for (var i = 0; i < rows.length; i++){table.append(rows[i])}
+})
+function comparer(index) {
+    return function(a, b) {
+        var valA = getCellValue(a, index), valB = getCellValue(b, index)
+        return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB)
+    }
+}
+function getCellValue(row, index){ return $(row).children('td').eq(index).text() }
+    </script>
+}

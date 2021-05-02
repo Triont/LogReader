@@ -17,6 +17,13 @@ a {
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
+table, th, td {
+    border: 1px solid black;
+}
+
+th {
+    cursor: pointer;
+}
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
   color: #fff;

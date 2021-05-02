@@ -20,7 +20,7 @@
       "NETCOREAPP3_1_OR_GREATER"
     ],
     "languageVersion": "9.0",
-    "platform": "",
+    "platform": "x64",
     "allowUnsafe": false,
     "warningsAsErrors": false,
     "optimize": false,
@@ -33,6 +33,7 @@
     ".NETCoreApp,Version=v5.0": {
       "WebApplication25/1.0.0": {
         "dependencies": {
+          "IpStack": "1.0.1",
           "Microsoft.EntityFrameworkCore.SqlServer": "5.0.5",
           "Microsoft.EntityFrameworkCore.Tools": "5.0.5",
           "IpInfo": "1.0.5.2",
@@ -346,6 +347,20 @@
         },
         "compile": {
           "lib/netstandard2.0/IpInfo.dll": {}
+        }
+      },
+      "IpStack/1.0.1": {
+        "dependencies": {
+          "RestSharp": "106.6.10"
+        },
+        "runtime": {
+          "lib/netcoreapp2.1/IpStack.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        },
+        "compile": {
+          "lib/netcoreapp2.1/IpStack.dll": {}
         }
       },
       "Microsoft.CSharp/4.7.0": {},
@@ -675,6 +690,17 @@
         },
         "compile": {
           "lib/netstandard2.0/Newtonsoft.Json.dll": {}
+        }
+      },
+      "RestSharp/106.6.10": {
+        "runtime": {
+          "lib/netstandard2.0/RestSharp.dll": {
+            "assemblyVersion": "106.6.10.0",
+            "fileVersion": "106.6.10.0"
+          }
+        },
+        "compile": {
+          "lib/netstandard2.0/RestSharp.dll": {}
         }
       },
       "runtime.native.System/4.3.0": {
@@ -2960,6 +2986,13 @@
       "path": "ipinfo/1.0.5.2",
       "hashPath": "ipinfo.1.0.5.2.nupkg.sha512"
     },
+    "IpStack/1.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-h9BOV8McZD0i0+yQKF6TTfW009W2pWORh/3ZuVR3CCBPKNH3Noiff+FdNmhKsIYqktvyYWt61mhaQxfxe6Oqrw==",
+      "path": "ipstack/1.0.1",
+      "hashPath": "ipstack.1.0.1.nupkg.sha512"
+    },
     "Microsoft.CSharp/4.7.0": {
       "type": "package",
       "serviceable": true,
@@ -3169,6 +3202,13 @@
       "sha512": "sha512-6mgjfnRB4jKMlzHSl+VD+oUc1IebOZabkbyWj2RiTgWwYPPuaK1H97G1sHqGwPlS5npiF5Q0OrxN1wni2n5QWg==",
       "path": "newtonsoft.json/12.0.3",
       "hashPath": "newtonsoft.json.12.0.3.nupkg.sha512"
+    },
+    "RestSharp/106.6.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-x1FM32hjnVOIn+DKtCs2Y4Q2DCUE5KW08NUXUd4GjgKjE+5PE0F6e9XfUg7nILo05M0TA/HRkRD/SeQ8+duOUA==",
+      "path": "restsharp/106.6.10",
+      "hashPath": "restsharp.106.6.10.nupkg.sha512"
     },
     "runtime.native.System/4.3.0": {
       "type": "package",

@@ -68,7 +68,10 @@ namespace WebApplication25.Migrations
                     b.Property<long>("DataVolume")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("DateTime")
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DateTimeLog")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("FilesInfoId")
@@ -95,16 +98,26 @@ namespace WebApplication25.Migrations
             modelBuilder.Entity("WebApplication25.Models.MainTable", b =>
                 {
                     b.HasOne("WebApplication25.Models.FilesInfo", "FilesInfo")
-                        .WithMany()
+                        .WithMany("MainTables")
                         .HasForeignKey("FilesInfoId");
 
                     b.HasOne("WebApplication25.Models.IPinfo", "_IPinfo")
-                        .WithMany()
+                        .WithMany("Requests")
                         .HasForeignKey("_IPinfoId");
 
                     b.Navigation("_IPinfo");
 
                     b.Navigation("FilesInfo");
+                });
+
+            modelBuilder.Entity("WebApplication25.Models.FilesInfo", b =>
+                {
+                    b.Navigation("MainTables");
+                });
+
+            modelBuilder.Entity("WebApplication25.Models.IPinfo", b =>
+                {
+                    b.Navigation("Requests");
                 });
 #pragma warning restore 612, 618
         }

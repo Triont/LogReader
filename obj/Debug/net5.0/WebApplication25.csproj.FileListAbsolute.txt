@@ -71,3 +71,9 @@ C:\Users\user\source\repos\WebApplication25\WebApplication25\obj\Debug\net5.0\We
 C:\Users\user\source\repos\WebApplication25\WebApplication25\obj\Debug\net5.0\ref\WebApplication25.dll
 C:\Users\user\source\repos\WebApplication25\WebApplication25\obj\Debug\net5.0\WebApplication25.pdb
 C:\Users\user\source\repos\WebApplication25\WebApplication25\obj\Debug\net5.0\WebApplication25.genruntimeconfig.cache
+C:\Users\user\source\repos\WebApplication25\WebApplication25\obj\Debug\net5.0\Razor\Views\Home\Index1.cshtml.g.cs
+C:\Users\user\source\repos\WebApplication25\WebApplication25\bin\Debug\net5.0\IpStack.dll
+C:\Users\user\source\repos\WebApplication25\WebApplication25\bin\Debug\net5.0\RestSharp.dll
+C:\Users\user\source\repos\WebApplication25\WebApplication25\obj\Debug\net5.0\Razor\Views\Home\MainTable.cshtml.g.cs
+C:\Users\user\source\repos\WebApplication25\WebApplication25\obj\Debug\net5.0\Razor\Views\Home\FilesTable.cshtml.g.cs
+C:\Users\user\source\repos\WebApplication25\WebApplication25\obj\Debug\net5.0\Razor\Views\Home\IpTable.cshtml.g.cs

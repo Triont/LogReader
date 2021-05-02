@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "ewrfPrnKZS6QSF38v3lPzmx7mXGAwSW8nVrQ62/9vdT4neHPOjohBzi05qrgXZ9E+/5ReE3N+E550QSWC+3xRg==",
+  "dgSpecHash": "8zpJYP4Jr2tqY3l6eDXn+YrXPRVCfUskLxByVLyuGCYCED+lRfWAU22KYZC++VWzFEuvXBPMwew7L0uHnZUaUA==",
   "success": true,
   "projectFilePath": "C:\\Users\\user\\source\\repos\\WebApplication25\\WebApplication25\\WebApplication25.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\user\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\ipinfo\\1.0.5.2\\ipinfo.1.0.5.2.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\ipstack\\1.0.1\\ipstack.1.0.1.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\microsoft.data.sqlclient\\2.0.1\\microsoft.data.sqlclient.2.0.1.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\microsoft.data.sqlclient.sni.runtime\\2.0.1\\microsoft.data.sqlclient.sni.runtime.2.0.1.nupkg.sha512",
@@ -36,6 +37,7 @@
     "C:\\Users\\user\\.nuget\\packages\\microsoft.win32.registry\\4.7.0\\microsoft.win32.registry.4.7.0.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\microsoft.win32.systemevents\\4.7.0\\microsoft.win32.systemevents.4.7.0.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\restsharp\\106.6.10\\restsharp.106.6.10.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\runtime.native.system\\4.3.0\\runtime.native.system.4.3.0.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\system.collections\\4.3.0\\system.collections.4.3.0.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\system.collections.concurrent\\4.3.0\\system.collections.concurrent.4.3.0.nupkg.sha512",

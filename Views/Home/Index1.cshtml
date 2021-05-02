@@ -1,0 +1,14 @@
+﻿@using WebApplication25.ModelView
+@model UploadLogModelView
+
+
+<div class="text-center">
+<form asp-action="UploadFile" asp-controller="Home" method="post" enctype="multipart/form-data">
+    
+<input type="file" accept=".log" asp-for="FormFile" />
+<br />
+<input type="submit" />
+</form>
+
+   
+</div>

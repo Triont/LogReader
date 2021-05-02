@@ -24,6 +24,18 @@
           "lib/netstandard2.0/IpInfo.dll": {}
         }
       },
+      "IpStack/1.0.1": {
+        "type": "package",
+        "dependencies": {
+          "RestSharp": "106.6.10"
+        },
+        "compile": {
+          "lib/netcoreapp2.1/IpStack.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp2.1/IpStack.dll": {}
+        }
+      },
       "Microsoft.CSharp/4.7.0": {
         "type": "package",
         "compile": {
@@ -449,6 +461,15 @@
         },
         "runtime": {
           "lib/netstandard2.0/Newtonsoft.Json.dll": {}
+        }
+      },
+      "RestSharp/106.6.10": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/RestSharp.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/RestSharp.dll": {}
         }
       },
       "runtime.native.System/4.3.0": {
@@ -1456,6 +1477,18 @@
         "nuget_icon.png"
       ]
     },
+    "IpStack/1.0.1": {
+      "sha512": "h9BOV8McZD0i0+yQKF6TTfW009W2pWORh/3ZuVR3CCBPKNH3Noiff+FdNmhKsIYqktvyYWt61mhaQxfxe6Oqrw==",
+      "type": "package",
+      "path": "ipstack/1.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ipstack.1.0.1.nupkg.sha512",
+        "ipstack.nuspec",
+        "lib/netcoreapp2.1/IpStack.dll"
+      ]
+    },
     "Microsoft.CSharp/4.7.0": {
       "sha512": "pTj+D3uJWyN3My70i2Hqo+OXixq3Os2D1nJ2x92FFo6sk8fYS1m1WLNTs0Dc1uPaViH0YvEEwvzddQ7y4rhXmA==",
       "type": "package",
@@ -2187,6 +2220,21 @@
         "newtonsoft.json.12.0.3.nupkg.sha512",
         "newtonsoft.json.nuspec",
         "packageIcon.png"
+      ]
+    },
+    "RestSharp/106.6.10": {
+      "sha512": "x1FM32hjnVOIn+DKtCs2Y4Q2DCUE5KW08NUXUd4GjgKjE+5PE0F6e9XfUg7nILo05M0TA/HRkRD/SeQ8+duOUA==",
+      "type": "package",
+      "path": "restsharp/106.6.10",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net452/RestSharp.dll",
+        "lib/net452/RestSharp.xml",
+        "lib/netstandard2.0/RestSharp.dll",
+        "lib/netstandard2.0/RestSharp.xml",
+        "restsharp.106.6.10.nupkg.sha512",
+        "restsharp.nuspec"
       ]
     },
     "runtime.native.System/4.3.0": {
@@ -5430,6 +5478,7 @@
   },
   "projectFileDependencyGroups": {
     "net5.0": [
+      "IpStack >= 1.0.1",
       "Microsoft.EntityFrameworkcore.sqlserver >= 5.0.5",
       "Microsoft.EntityFrameworkcore.tools >= 5.0.5",
       "ipinfo >= 1.0.5.2"
@@ -5482,6 +5531,10 @@
       "net5.0": {
         "targetAlias": "net5.0",
         "dependencies": {
+          "IpStack": {
+            "target": "Package",
+            "version": "[1.0.1, )"
+          },
           "Microsoft.EntityFrameworkcore.sqlserver": {
             "target": "Package",
             "version": "[5.0.5, )"

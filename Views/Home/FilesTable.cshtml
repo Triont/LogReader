@@ -1,0 +1,84 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@{
+}
+
+@using WebApplication25.ModelView;
+@using System.Text;
+@model FilesModelView
+@{
+}
+
+
+  <table class="table table-striped">
+              <thead>
+    <tr>
+    
+      <th scope="col">Id</th>
+     
+     
+        <th scope="col">Path</th>
+    
+        <th scope="col">Name</th>
+        <th scope="col">Volume</th>
+     
+     
+      
+  
+  
+    </tr>
+  </thead>
+        
+        @foreach(var i in Model.FilesInfos)
+        {
+          
+               <tr>
+                   
+                  <td>
+                      
+                      @i.Id
+                  </td>
+                  <td>
+                      @i.Path
+                  </td>
+                  <td>
+                      @i.Name
+                  </td>
+                  <td>
+                      @i.DataVolume
+                  </td>
+               
+               
+               
+                
+               </tr>
+
+           
+                
+        }
+           </table>
+
+
+
+@section Scripts
+{
+    <script src="~lib/jquery/dist/jquery.js"></script>
+    <script>
+        $('th').click(function(){
+    var table = $(this).parents('table').eq(0)
+    var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()))
+    this.asc = !this.asc
+    if (!this.asc){rows = rows.reverse()}
+    for (var i = 0; i < rows.length; i++){table.append(rows[i])}
+})
+function comparer(index) {
+    return function(a, b) {
+        var valA = getCellValue(a, index), valB = getCellValue(b, index)
+        return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB)
+    }
+}
+function getCellValue(row, index){ return $(row).children('td').eq(index).text() }
+    </script>
+}
