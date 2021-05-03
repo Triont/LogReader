@@ -41,7 +41,7 @@ namespace WebApplication25.Services
                         || lines[i].Contains("/js/") || lines[i].Contains("assets")
                         || lines[i].Contains("png") || lines[i].Contains("jpg")
                         || lines[i].Contains("php") || lines[i].Contains("/administrator/")
-                        || lines[i].Contains("ico")
+                        || lines[i].Contains("ico") //||lines[i].Contains("=opensearch")
 
                         ))
                     // if (lines[i].Contains("search"))
@@ -62,7 +62,7 @@ namespace WebApplication25.Services
                 //allowed.Add(lines[1540]);
                 //allowed.Add(lines[888]); allowed.Add(lines[89]);
                 //allowed.Add(lines[90]);
-                allowed.Add(lines[493]);
+             //   allowed.Add(lines[493]);
                 //   !var _allowed = allowed[0];
                 var data_time_logged = await GetDateTimesString(allowed);
                 var ip_addresses = await GetAllIp(allowed);
@@ -79,6 +79,8 @@ namespace WebApplication25.Services
                 //  var t=    await GetNames(urls);
                 //   var a=await appDbContext.FilesInfos.ToDictionaryAsync(x => x.Path, x => x.Name);
                 //  var af=   await GetNames(urls);
+
+
                 var Names = await GetNames(urls, new Dictionary<string, string>());
 
                 List<string> CompaniesName = await GetCompaniesName(ip_addresses);

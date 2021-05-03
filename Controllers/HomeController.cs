@@ -75,8 +75,11 @@ namespace WebApplication25.Controllers
         {
             if (TempData["MainData"] != null)
             {
-                
-                    return View(JsonConvert.DeserializeObject<MainModelView>(TempData["MainData"].ToString()));
+                var _m = JsonConvert.DeserializeObject<MainModelView>(TempData["MainData"].ToString());
+                var _c = await appDbContext.MainTable.Select(i => i.RequestType).Distinct().ToListAsync();
+                _m.Filters = _c;
+
+                    return View(_m);
                 
             }
             else if(TempData["FilteredMainData"]!=null)
@@ -174,10 +177,10 @@ namespace WebApplication25.Controllers
 
                     tmp.AddRange(cmp);
                     var f = await appDbContext.MainTable.ToListAsync();
-                    var filt = f.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
+                  //  var filt = f.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
                     MainModelView mainModelView1 = new MainModelView()
                     {
-                        MainTables = tmp, Filters=filt
+                        MainTables = tmp
                     };
                     TempData["MainData"] = JsonConvert.SerializeObject(mainModelView1, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
                     return RedirectToAction("MainTable", "Home");
@@ -234,7 +237,7 @@ namespace WebApplication25.Controllers
 
 
         }
-        [HttpPost]
+     
         public async Task<IActionResult> SearchInFiles(FilesModelView filesnModelView)
         {
             if (filesnModelView._search != null)
@@ -302,14 +305,22 @@ namespace WebApplication25.Controllers
         {
             List<IPinfo> infos = new List<IPinfo>();
             List<string> _c = new List<string>();
-           // var r = await appDbContext.IpInfo.ToListAsync();
-     
-            for (int i = 0; i < filters.Length; i++)
+           var r = await appDbContext.IpInfo.ToListAsync();
+
+            for (int qq = 0; qq < r.Count; qq++)
             {
-                var r = await appDbContext.MainTable.Select(tt => tt._IPinfo).Where(q => q.CompanyName.Contains(filters[i])).ToListAsync();
-                infos.AddRange(r);
-               
-                _c.Add(filters[i]);
+                for (int i = 0; i < filters.Length; i++)
+                {
+
+                    if(r[qq].CompanyName.Contains(filters[i]))
+                    {
+                        infos.Add(r[qq]);
+                    }
+                    //var rr = await appDbContext.MainTable.Select(tt => tt._IPinfo).Where(q => q.CompanyName.Contains(filters[i])).ToListAsync();
+                    //infos.AddRange(r);
+
+                    _c.Add(filters[i]);
+                }
             }
             if (filters.Length == 0)
             {
