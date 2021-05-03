@@ -10,8 +10,8 @@ namespace WebApplication25.Models
     public class MainTable
     {
         public long Id { get; set; }
-        public virtual IPinfo _IPinfo { get; set; }
-        public virtual FilesInfo FilesInfo { get; set; }  
+        public  IPinfo _IPinfo { get; set; }
+        public  FilesInfo FilesInfo { get; set; }  
         public DateTime DateTime { get; set; }
         public string DateTimeLog { get; set; }
         public string RequestType { get; set; }

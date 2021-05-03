@@ -10,6 +10,48 @@
 @model FilesModelView
 @{
 }
+@Html.ActionLink("Show main table", "MainTable", "Home")
+@Html.ActionLink("Show ip table", "IpTable", "Home")
+@Html.ActionLink("Show files table", "FilesTable", "Home")
+
+   
+
+<form asp-action="SearchInFiles" asp-controller="Home">
+    <input type="search" asp-for="_search" />
+    <input type ="submit" />
+</form>
+
+<form asp-action="GetFilterdedFilesData" asp-controller="Home">
+    @foreach(var i in Model.Filters)
+{
+    if (i != null)
+    {
+          <label>@i</label>
+            if (Model.CheckedItems != null)
+            {
+
+                if (Model.CheckedItems.Contains(i))
+                {
+                    <input type="checkbox" name="filters" value="@i" checked="checked">
+                }
+                else
+                {
+                    <input type="checkbox" name="filters" value="@i" >
+                }
+                <text> &nbsp;&nbsp;</text>
+    }
+    else
+            {
+                  <input type="checkbox" name="filters" value="@i" >  <text> &nbsp;&nbsp;</text>
+            }
+}
+}
+<input type="submit" />
+</form>
+
+
+
+
 
 
   <table class="table table-striped">
@@ -40,7 +82,7 @@
                       
                       @i.Id
                   </td>
-                  <td>
+                  <td class="Path">
                       @i.Path
                   </td>
                   <td>

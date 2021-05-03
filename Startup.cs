@@ -10,8 +10,11 @@ using WebApplication25.Models;
 using WebApplication25.Services;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft;
 using System.Threading.Tasks;
 using System.Net;
+using Newtonsoft.Json.Serialization;
 
 namespace WebApplication25
 {
@@ -30,14 +33,11 @@ namespace WebApplication25
             services.AddControllersWithViews();
             services.AddScoped<HandleLog>();
             services.AddScoped<HandleLogParallel>();
+          
             services.AddDbContext<AppDbContext>(options =>
       options.UseSqlServer(Configuration.GetConnectionString("Default")));
 
-            services.AddHttpsRedirection((opt) =>
-            {
-                opt.RedirectStatusCode = (int)HttpStatusCode.TemporaryRedirect;
-                opt.HttpsPort = 5001;
-            });
+          
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,7 +53,8 @@ namespace WebApplication25
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+           app.UseHttpsRedirection();
+            app.UseDefaultFiles();
             app.UseStaticFiles();
 
             app.UseRouting();

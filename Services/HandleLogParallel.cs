@@ -564,13 +564,15 @@ namespace WebApplication25.Services
 
         public async Task<string> GetCompaniesName(byte[] ip)
         {
-            using var cl = new HttpClient();
-            var api = new IpInfoApi("530f45ab84efc1", cl);
-
+            
             string company = string.Empty;
             string _ip = Encoding.ASCII.GetString(ip);
+            HttpClientHandler httpClientHandler = new HttpClientHandler();
+            httpClientHandler.ServerCertificateCustomValidationCallback= (sender, cert, chain, sslPolicyErrors) => { return true; };
+            using var cl = new HttpClient(httpClientHandler);
+            var api = new IpInfoApi("530f45ab84efc1", cl);
 
-                var r = await api.GetOrganizationByIpAsync(_ip);
+            var r = await api.GetOrganizationByIpAsync(_ip);
 
             // ;
 

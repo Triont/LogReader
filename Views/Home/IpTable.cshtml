@@ -10,15 +10,43 @@
 @model IpModelView
 @{
 }
+@Html.ActionLink("Show main table", "MainTable", "Home")
+@Html.ActionLink("Show ip table", "IpTable", "Home")
+@Html.ActionLink("Show files table", "FilesTable", "Home")
+
+   
 
 <form asp-action="SearchInIp" asp-controller="Home">
-    <input type="text" asp-for="_search" />
+    <input type="search" asp-for="_search" />
     <input type ="submit" />
 </form>
+<form asp-action="GetFilterdedIpData" asp-controller="Home">
 @foreach(var i in Model.Filters)
 {
-    <input type="checkbox" name="filterStatus" value="@i">
+    if (i != null)
+    {
+          <label>@i</label>
+              if (Model.CheckedItems != null)
+            {
+
+                if (Model.CheckedItems.Contains(i))
+                {
+                    <input type="checkbox" name="filters" value="@i" checked="checked">
+                }
+                else
+                {
+                    <input type="checkbox" name="filters" value="@i" >
+                }
+                <text> &nbsp;&nbsp;</text>
+    }
+    else
+            {
+                  <input type="checkbox" name="filters" value="@i" >  <text> &nbsp;&nbsp;</text>
+            }
 }
+}
+<input type="submit" />
+</form>
   <table class="table table-striped" id="StatusTable">
               <thead>
     <tr>
