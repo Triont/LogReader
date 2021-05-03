@@ -9,12 +9,14 @@ using System;
 using WebApplication25.Models;
 using WebApplication25.Services;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Proxies;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft;
 using System.Threading.Tasks;
 using System.Net;
 using Newtonsoft.Json.Serialization;
+
 
 namespace WebApplication25
 {
@@ -34,8 +36,8 @@ namespace WebApplication25
             services.AddScoped<HandleLog>();
             services.AddScoped<HandleLogParallel>();
           
-            services.AddDbContext<AppDbContext>(options =>
-      options.UseSqlServer(Configuration.GetConnectionString("Default")));
+            services.AddDbContext<AppDbContext>(options =>options.UseLazyLoadingProxies().
+      UseSqlServer(Configuration.GetConnectionString("Default")));
 
           
         }

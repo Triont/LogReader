@@ -90,8 +90,8 @@ namespace WebApplication25.Controllers
 
             else
             {
-                var _m = await appDbContext.MainTable.Include(i => i.FilesInfo).Include(s => s._IPinfo).ToListAsync();
-                var f = _m.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
+                var _m = await appDbContext.MainTable.ToListAsync();
+                var f = _m.Select(i => i.RequestType).Distinct().ToList();
                 MainModelView mainModelView = new MainModelView() { MainTables = _m, Filters=f };
                 return View(mainModelView);
             }
@@ -159,7 +159,7 @@ namespace WebApplication25.Controllers
    
                         {
                     var q = await appDbContext.MainTable.Where(i => i.Id == id).ToListAsync();
-                    var f = await appDbContext.MainTable.Include(i => i._IPinfo).ToListAsync();
+                    var f = await appDbContext.MainTable.ToListAsync();
                   var filt=  f.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
                     MainModelView mainModelView1 = new MainModelView() { MainTables = q, Filters=filt };
                     TempData["MainData"] = JsonConvert.SerializeObject(mainModelView1);
@@ -173,13 +173,13 @@ namespace WebApplication25.Controllers
                     var cmp = await appDbContext.MainTable.Where(i => i._IPinfo.CompanyName.Contains(mainModelView.Search)).ToListAsync();
 
                     tmp.AddRange(cmp);
-                    var f = await appDbContext.MainTable.Include(i => i._IPinfo).ToListAsync();
+                    var f = await appDbContext.MainTable.ToListAsync();
                     var filt = f.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
                     MainModelView mainModelView1 = new MainModelView()
                     {
                         MainTables = tmp, Filters=filt
                     };
-                    TempData["MainData"] = JsonConvert.SerializeObject(mainModelView1);
+                    TempData["MainData"] = JsonConvert.SerializeObject(mainModelView1, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
                     return RedirectToAction("MainTable", "Home");
                 }
 
@@ -205,12 +205,12 @@ namespace WebApplication25.Controllers
                 {
                     var q = await appDbContext.IpInfo.Where(i => i.Id == id).ToListAsync();
                     
-                    IpModelView ipModel = new IpModelView() { IpData = q, Filters=await appDbContext.IpInfo.Select(i=>i.CompanyName).Distinct().ToListAsync() };
-                    string json_data = JsonConvert.SerializeObject(ipModel);
+                    IpModelView ipModel = new IpModelView() { IpData = q };
+                    string json_data = JsonConvert.SerializeObject(ipModel, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
                     TempData["Ip_data"] = json_data;
                     return RedirectToAction("IpTable", "Home");
                 }
-                else if( appDbContext.IpInfo.Where(i => i.CompanyName.Contains(_ipModelView._search)).ToList().Count!=0)
+                else 
                 {
                   
 
@@ -220,9 +220,9 @@ namespace WebApplication25.Controllers
                   
                     IpModelView ipView = new IpModelView()
                     {
-                        IpData = cmp, Filters=await appDbContext.IpInfo.Select(i=>i.CompanyName).Distinct().ToListAsync()
+                        IpData = cmp
                     };
-                    TempData["Ip_data"] = JsonConvert.SerializeObject(ipView);
+                    TempData["Ip_data"] = JsonConvert.SerializeObject(ipView, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
                     return RedirectToAction("IpTable", "Home");
                 }
 
@@ -234,6 +234,7 @@ namespace WebApplication25.Controllers
 
 
         }
+        [HttpPost]
         public async Task<IActionResult> SearchInFiles(FilesModelView filesnModelView)
         {
             if (filesnModelView._search != null)
@@ -262,7 +263,7 @@ namespace WebApplication25.Controllers
                     };
                     TempData["FilesData"] = JsonConvert.SerializeObject(fileModelView1);
 
-                    return RedirectToAction("FilesTable", "Hable");
+                    return RedirectToAction("FilesTable", "Home");
                 }
 
             }
@@ -297,85 +298,88 @@ namespace WebApplication25.Controllers
         }
 
 
-//        public async Task<IActionResult> GetFilterdedIpData(string[] filters)
-//        {
-//            List<IPinfo> infos = new List<IPinfo>();
-//            List<string> _c = new List<string>();
-//            for(int i=0; i<filters.Length;i++)
-//            {
-//                var r = await appDbContext.IpInfo.Where(k => k.CompanyName.Contains(filters[i])).ToListAsync();
-//                infos.AddRange(r);
-//                _c.Add(filters[i]);
-//            }
-//            if(filters.Length==0)
-//            {
-//                infos = await appDbContext.IpInfo.ToListAsync();
-//            }
-//            IpModelView ipModelView = new IpModelView()
-//            {
-//                CheckedItems = _c,
-//                Filters = await appDbContext.IpInfo.Select(i => i.CompanyName).Distinct().ToListAsync(),
-//                IpData = infos
-//            };
-//            string tmp = JsonConvert.SerializeObject(ipModelView);
-//            TempData["FilteredIp"] = tmp;
-//            return RedirectToAction("IpTable", "Home");
-          
-
-//        }
-
-//        public async Task<IActionResult> GetFilterdedFilesData(string[] filters)
-//        {
-//            List<FilesInfo> infos = new List<FilesInfo>();
-//            List<string> check = new List<string>();
-//            for (int i = 0; i < filters.Length; i++)
-//            {
-//                var r = await appDbContext.FilesInfos.Where(k => k.Name.Contains(filters[i])).ToListAsync();
-//                infos.AddRange(r);
-//                check.Add(filters[i]);
-//            }
-//            if(filters.Length==0)
-//            {
-//                infos = await appDbContext.FilesInfos.ToListAsync();
-//            }
-//            FilesModelView filesModelView = new FilesModelView();
-//            filesModelView.CheckedItems = check;
-//            filesModelView.FilesInfos = infos;
-//            string tmp = JsonConvert.SerializeObject(filesModelView);
-//            TempData["FilteredFiles"] = tmp;
-//            return RedirectToAction("FilesTable", "Home");
+        public async Task<IActionResult> GetFilterdedIpData(string[] filters)
+        {
+            List<IPinfo> infos = new List<IPinfo>();
+            List<string> _c = new List<string>();
+           // var r = await appDbContext.IpInfo.ToListAsync();
+     
+            for (int i = 0; i < filters.Length; i++)
+            {
+                var r = await appDbContext.MainTable.Select(tt => tt._IPinfo).Where(q => q.CompanyName.Contains(filters[i])).ToListAsync();
+                infos.AddRange(r);
+               
+                _c.Add(filters[i]);
+            }
+            if (filters.Length == 0)
+            {
+                infos = await appDbContext.IpInfo.ToListAsync();
+            }
+            IpModelView ipModelView = new IpModelView()
+            {
+                CheckedItems = _c,
+                Filters = await appDbContext.IpInfo.Select(i => i.CompanyName).Distinct().ToListAsync(),
+                IpData = infos
+            };
+            string tmp = JsonConvert.SerializeObject(ipModelView, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling=ReferenceLoopHandling.Ignore});
+            TempData["FilteredIp"] = tmp;
+            return RedirectToAction("IpTable", "Home");
 
 
-//        }
+        }
 
-//        public async Task<IActionResult> GetFilterdedMainData(string[] filters)
-//        {
-//            List<MainTable> infos = new List<MainTable>();
-//            List<string> _check = new List<string>();
-        
-//            for (int i = 0; i < filters.Length; i++)
-//            {
-//                var r = await appDbContext.MainTable.Where(k => k._IPinfo.CompanyName.Contains(filters[i])).ToListAsync();
-//                infos.AddRange(r);
-//                _check.Add(filters[i]);
-//            }
-//            if(filters.Length==0)
-//            {
-//                infos = await appDbContext.MainTable.ToListAsync();
-//            }
-//            MainModelView mainModelView = new MainModelView()
-//            {
-//                CheckedItems = _check,
-//                Filters = await appDbContext.MainTable.Select(i =>
-//i._IPinfo.CompanyName).Distinct().ToListAsync(),
-//                MainTables = infos
-//            };
-
-//            string tmp = JsonConvert.SerializeObject(mainModelView);
-//            TempData["FilteredMainData"] = tmp;
-//            return RedirectToAction("MainTable", "Home");
+        public async Task<IActionResult> GetFilterdedFilesData(string[] filters)
+        {
+            List<FilesInfo> infos = new List<FilesInfo>();
+            List<string> check = new List<string>();
+            for (int i = 0; i < filters.Length; i++)
+            {
+                var r = await appDbContext.FilesInfos.Where(k => k.Name.Contains(filters[i])).ToListAsync();
+                infos.AddRange(r);
+                check.Add(filters[i]);
+            }
+            if (filters.Length == 0)
+            {
+                infos = await appDbContext.FilesInfos.ToListAsync();
+            }
+            FilesModelView filesModelView = new FilesModelView();
+            filesModelView.CheckedItems = check;
+            filesModelView.FilesInfos = infos;
+            string tmp = JsonConvert.SerializeObject(filesModelView, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+            TempData["FilteredFiles"] = tmp;
+            return RedirectToAction("FilesTable", "Home");
 
 
-//        }
+        }
+
+        public async Task<IActionResult> GetFilterdedMainData(string[] filters)
+        {
+            List<MainTable> infos = new List<MainTable>();
+            List<string> _check = new List<string>();
+
+            for (int i = 0; i < filters.Length; i++)
+            {
+                var r = await appDbContext.MainTable.Where(k => k.RequestType.Contains(filters[i])).ToListAsync();
+                infos.AddRange(r);
+                _check.Add(filters[i]);
+            }
+            if (filters.Length == 0)
+            {
+                infos = await appDbContext.MainTable.ToListAsync();
+            }
+            MainModelView mainModelView = new MainModelView()
+            {
+                CheckedItems = _check,
+                Filters = await appDbContext.MainTable.Select(i =>
+i._IPinfo.CompanyName).Distinct().ToListAsync(),
+                MainTables = infos
+            };
+
+            string tmp = JsonConvert.SerializeObject(mainModelView, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+            TempData["FilteredMainData"] = tmp;
+            return RedirectToAction("MainTable", "Home");
+
+
+        }
     }
 }

@@ -60,6 +60,10 @@
               "target": "Package",
               "version": "[5.0.5, )"
             },
+            "Microsoft.Entityframeworkcore.proxies": {
+              "target": "Package",
+              "version": "[5.0.5, )"
+            },
             "ipinfo": {
               "target": "Package",
               "version": "[1.0.5.2, )"

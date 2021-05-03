@@ -10,8 +10,8 @@ namespace WebApplication25.Models
     public class MainTable
     {
         public long Id { get; set; }
-        public  IPinfo _IPinfo { get; set; }
-        public  FilesInfo FilesInfo { get; set; }  
+        public virtual IPinfo _IPinfo { get; set; }
+        public virtual FilesInfo FilesInfo { get; set; }  
         public DateTime DateTime { get; set; }
         public string DateTimeLog { get; set; }
         public string RequestType { get; set; }
@@ -26,7 +26,7 @@ namespace WebApplication25.Models
         public string Path { get; set; }
         public string Name { get; set; }
         public long DataVolume { get; set; }
-        public List<MainTable> MainTables { get; set; }
+     //   public virtual List<MainTable> MainTables { get; set; } = new List<MainTable>();
     }
     public class IPinfo
     {
@@ -34,7 +34,7 @@ namespace WebApplication25.Models
         [Column(TypeName = "varbinary(16)")]
         public byte[] IPAddress { get; set; }
         public string CompanyName { get; set; }
-        public List<MainTable> Requests { get; set; }
+       // public virtual List<MainTable> Requests { get; set; } = new List<MainTable>();
 
     }
 
@@ -49,6 +49,7 @@ namespace WebApplication25.Models
         {
             
         }
+       
 
     }
 }
