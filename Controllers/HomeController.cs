@@ -44,28 +44,31 @@ namespace WebApplication25.Controllers
         }
         public async Task< IActionResult> UploadFile(UploadLogModelView uploadLogModelView)
         {
-            if (uploadLogModelView.FormFile != null)
+            if (ModelState.IsValid)
             {
-                var uniqueFileName = GetUniqueFileName(uploadLogModelView.FormFile.FileName);
-
-                var uploads = Path.Combine(hostingEnvironment.WebRootPath, "uploads");
-                if (!Directory.Exists(uploads))
+                if (uploadLogModelView.FormFile != null)
                 {
-                    Directory.CreateDirectory(uploads);
+                    var uniqueFileName = GetUniqueFileName(uploadLogModelView.FormFile.FileName);
+
+                    var uploads = Path.Combine(hostingEnvironment.WebRootPath, "uploads");
+                    if (!Directory.Exists(uploads))
+                    {
+                        Directory.CreateDirectory(uploads);
+                    }
+                    var filePath = Path.Combine(uploads, uniqueFileName);
+                    FileStream fileStream = new FileStream(filePath, FileMode.Create);
+                    uploadLogModelView.FormFile.CopyTo(fileStream);
+                    fileStream.Close();
+
+                    await Task.Run(() => handleLog.GetData(filePath));
+
+
+
+                    //await handleLogParallel.GetData(filePath);
+
+
+
                 }
-                var filePath = Path.Combine(uploads, uniqueFileName);
-                FileStream fileStream = new FileStream(filePath, FileMode.Create);
-                uploadLogModelView.FormFile.CopyTo(fileStream);
-                fileStream.Close();
-
-                 await Task.Run(()=>  handleLog.GetData(filePath));
-            
-                
-                
-                //await handleLogParallel.GetData(filePath);
-
-
-
             }
             return RedirectToAction("Index");
         }
