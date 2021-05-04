@@ -167,23 +167,23 @@ namespace WebApplication25.Controllers
                     var q = await appDbContext.MainTable.Where(i => i.Id == id).ToListAsync();
                     var f = await appDbContext.MainTable.ToListAsync();
                   var filt=  f.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
-                    MainModelView mainModelView1 = new MainModelView() { MainTables = q, Filters=filt };
+                    MainModelView mainModelView1 = new MainModelView() { MainTables = q };
                     TempData["MainData"] = JsonConvert.SerializeObject(mainModelView1);
                     return RedirectToAction("MainTable", "Home");
                 }
                 else
                 {
-                    var tmp = await appDbContext.MainTable.Where(i => i.FilesInfo.Path.Contains(mainModelView.Search)).ToListAsync();
+                    //var tmp = await appDbContext.MainTable.Where(i => i.FilesInfo.Path.Contains(mainModelView.Search)).ToListAsync();
                  
 
                     var cmp = await appDbContext.MainTable.Where(i => i._IPinfo.CompanyName.Contains(mainModelView.Search)).ToListAsync();
 
-                    tmp.AddRange(cmp);
-                    var f = await appDbContext.MainTable.ToListAsync();
+                    //tmp.AddRange(cmp);
+                 //   var f = await appDbContext.MainTable.ToListAsync();
                   //  var filt = f.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
                     MainModelView mainModelView1 = new MainModelView()
                     {
-                        MainTables = tmp
+                        MainTables = cmp
                     };
                     TempData["MainData"] = JsonConvert.SerializeObject(mainModelView1, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
                     return RedirectToAction("MainTable", "Home");
@@ -250,22 +250,24 @@ namespace WebApplication25.Controllers
 
                 {
                     var q = await appDbContext.FilesInfos.Where(i => i.Id == id).ToListAsync();
-                    FilesModelView mainModelView1 = new FilesModelView() { FilesInfos = q, Filters = await appDbContext.FilesInfos.Select(i=>i.Name).Distinct().ToListAsync() };
+                    FilesModelView mainModelView1 = new FilesModelView() { FilesInfos = q,
+                       // Filters = await appDbContext.FilesInfos.Select(i=>i.Name).Distinct().ToListAsync()
+                    };
                     TempData["FilesData"] = JsonConvert.SerializeObject(mainModelView1);
                     return RedirectToAction("FilesTable", "Home");
                 }
                 else
                 {
-                    var tmp = await appDbContext.FilesInfos.Where(i => i.Path.Contains(filesnModelView._search)).ToListAsync();
+                   // var tmp = await appDbContext.FilesInfos.Where(i => i.Path.Contains(filesnModelView._search)).ToListAsync();
 
 
                     var cmp = await appDbContext.FilesInfos.Where(i => i.Name.Contains(filesnModelView._search)).ToListAsync();
 
-                    tmp.AddRange(cmp);
+                    //tmp.AddRange(cmp);
                     FilesModelView  fileModelView1 = new FilesModelView()
                     {
-                        FilesInfos = tmp,
-                        Filters = await appDbContext.FilesInfos.Select(i => i.Name).Distinct().ToListAsync()
+                        FilesInfos = cmp
+                    //    Filters = await appDbContext.FilesInfos.Select(i => i.Name).Distinct().ToListAsync()
                     };
                     TempData["FilesData"] = JsonConvert.SerializeObject(fileModelView1);
 
