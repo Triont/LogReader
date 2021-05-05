@@ -148,10 +148,17 @@ namespace WebApplication25.Controllers
 
                 for (int i = 0; i < filters.Length; i++)
                 {
-                    var r = await appDbContext.MainTable.Where(k => k._IPinfo.CompanyName ==(filters[i])).ToListAsync();
+                    string tmp = filters[i].Remove(filters[i].Length-2, 2);
+                      var r = await appDbContext.MainTable.Where(k => k._IPinfo.CompanyName.Contains(tmp)).ToListAsync();
+                 //   var qq = await appDbContext.IpInfo.Where(o => o.CompanyName.Contains(tmp)).ToListAsync();
                     
-                    infos.AddRange(r);
+                   infos.AddRange(r);
                     _check.Add(filters[i]);
+                }
+
+                foreach(var i in appDbContext.IpInfo.ToList())
+                {
+                    this._logger.LogInformation($"{i.CompanyName} \n");
                 }
                 if (filters.Length == 0)
                 {
@@ -238,23 +245,23 @@ namespace WebApplication25.Controllers
             {
                 List<IPinfo> infos = new List<IPinfo>();
                 List<string> _c = new List<string>();
-                var r = await appDbContext.IpInfo.ToListAsync();
+              //  var r = await appDbContext.IpInfo.ToListAsync();
 
-                for (int qq = 0; qq < r.Count; qq++)
-                {
+               
                     for (int i = 0; i < filters.Length; i++)
                     {
 
-                        if (r[qq].CompanyName==(filters[i]))
-                        {
-                            infos.Add(r[qq]);
-                        }
-                        //var rr = await appDbContext.MainTable.Select(tt => tt._IPinfo).Where(q => q.CompanyName.Contains(filters[i])).ToListAsync();
-                        //infos.AddRange(r);
+                    string tmp = filters[i].Remove(filters[i].Length - 2, 2);
+                    var r = await appDbContext.IpInfo.Where(k => k.CompanyName.Contains(tmp)).ToListAsync();
 
-                        _c.Add(filters[i]);
+                    infos.AddRange(r);
+                   
+                 //   var rr = await appDbContext.IpInfo.Select(tt => tt._IPinfo).Where(q => q.CompanyName.Contains(filters[i])).ToListAsync();
+                    //infos.AddRange(r);
+
+                    _c.Add(filters[i]);
                     }
-                }
+                
                 if (filters.Length == 0)
                 {
                     infos = await appDbContext.IpInfo.ToListAsync();
