@@ -21,30 +21,16 @@
     <input type ="submit" />
 </form>
 <form asp-action="IpTable" asp-controller="Home">
-@foreach(var i in Model.Filters)
+<select name="filters"> 
+    @foreach(var i in Model.Filters)
 {
     if (i != null)
     {
-          <label>@i</label>
-              if (Model.CheckedItems != null)
-            {
-
-                if (Model.CheckedItems.Contains(i))
-                {
-                    <input class="input_comp" type="checkbox" name="filters" value="@i" checked="checked">
-                }
-                else
-                {
-                    <input type="checkbox" class="input_comp" name="filters" value="@i" >
-                }
-                <text> &nbsp;&nbsp;</text>
-    }
-    else
-            {
-                  <input type="checkbox" class="input_comp" name="filters" value="@i" >  <text> &nbsp;&nbsp;</text>
-            }
+        
+            <option value="@i">@i</option>
 }
 }
+</select>
 <input type="submit" />
 </form>
   <table class="table table-striped" id="StatusTable">

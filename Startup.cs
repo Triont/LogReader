@@ -35,7 +35,7 @@ namespace WebApplication25
             services.AddControllersWithViews();
             services.AddMvc((o) => o.EnableEndpointRouting = false);
             services.AddScoped<HandleLog>();
-            services.AddScoped<HandleLogParallel>();
+            services.AddScoped<HandleLogByLine>();
             services.AddMemoryCache();
             services.AddSession();
 

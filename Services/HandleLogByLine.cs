@@ -16,13 +16,13 @@ using Newtonsoft;
 
 namespace WebApplication25.Services
 {
-    public class HandleLogParallel
+    public class HandleLogByLine
     {
 
 
         private readonly AppDbContext appDbContext;
         private ILogger<HandleLog> Logger;
-        public HandleLogParallel(AppDbContext appDbContext, ILogger<HandleLog> logger)
+        public HandleLogByLine(AppDbContext appDbContext, ILogger<HandleLog> logger)
         {
             this.appDbContext = appDbContext;
             this.Logger = logger;
@@ -51,21 +51,21 @@ namespace WebApplication25.Services
                     {
                         if (!(lines[i].Contains(" - admin ") || lines[i].Contains("/administrator ")))
                         {
-                          //  allowed.Add(lines[i]);
+                          allowed.Add(lines[i]);
                         }
                     }
                 }
 
-                allowed.Add(lines[0]);
-                allowed.Add(lines[1]);
-                allowed.Add(lines[4593]);
-                allowed.Add(lines[249]);
-                allowed.Add(lines[359]);
-                allowed.Add(lines[499]); allowed.Add(lines[5]);
-                allowed.Add(lines[1540]);
-                allowed.Add(lines[888]); allowed.Add(lines[89]);
-                allowed.Add(lines[90]);
-                allowed.Add(lines[493]);
+                //allowed.Add(lines[0]);
+                //allowed.Add(lines[1]);
+                //allowed.Add(lines[4593]);
+                //allowed.Add(lines[249]);
+                //allowed.Add(lines[359]);
+                //allowed.Add(lines[499]); allowed.Add(lines[5]);
+                //allowed.Add(lines[1540]);
+                //allowed.Add(lines[888]); allowed.Add(lines[89]);
+                //allowed.Add(lines[90]);
+                //allowed.Add(lines[493]);
 
                 List<string> mainTables = new List<string>();
                 List<string> ip = new List<string>();
@@ -85,8 +85,9 @@ namespace WebApplication25.Services
                 List<long> dataVolumes = new List<long>();
                 List<string> names = new List<string>();
 
-                Parallel.For(0, allowed.Count, async(i) =>
-                 {
+             //   Parallel.For(0, allowed.Count, async(i) =>
+                for(int i=0; i<allowed.Count;i++)
+                {
                      var _ip = GetIp(allowed[i]);
                      ip_list.Add(GetIp(allowed[i]));
                      var _datetimestr = await GetDateTimesString(allowed[i]);
@@ -98,10 +99,32 @@ namespace WebApplication25.Services
                      ParseRequest(t, out request, out url);
                      request_types.Add(request);
                      urls.Add(url);
-                     var compName = await GetCompaniesName(_ip);
-                     compNames.Add(compName);
-                     var name = await GetNames(allowed[i]);
-                     names.Add(name);
+                     
+                     var check_comp = await appDbContext.IpInfo.FirstOrDefaultAsync(i => i.IPAddress==_ip);
+                     if (check_comp == null)
+                     {
+                         var compName = await GetCompaniesName(_ip);
+                         compNames.Add(compName);
+                     }
+                     else
+                     {
+
+
+                         var compName_ = await appDbContext.IpInfo.FirstOrDefaultAsync(i => i.IPAddress == _ip);
+                         compNames.Add(compName_.CompanyName);
+                     }
+                     var check_name = await appDbContext.FilesInfos.FirstOrDefaultAsync(a => a.Path == url);
+                     if (check_name==null)
+                     {
+                             var name = await GetNames(url);
+                             names.Add(name);
+                     }
+                     else
+                     {
+                         var _name = await appDbContext.FilesInfos.FirstOrDefaultAsync(a => a.Path == url);
+                         names.Add(_name.Name);
+                     }
+                    
                      int _res;
                      long volume;
                   
@@ -112,7 +135,7 @@ namespace WebApplication25.Services
 
                     
                  }
-                );
+                
 
 
                 for(int i=0; i<allowed.Count;i++)
@@ -376,40 +399,14 @@ namespace WebApplication25.Services
                     }
 
                 }
-                //if (!done.ContainsKey(requests[i]))
-                //{
-                //    try
-                //    {
-                //        _s = await x.DownloadStringTaskAsync(stringBuilder.ToString());
-                //    }
-                //    catch (WebException e)
-                //    {
-                //        Logger.LogError($"{e.Message}, {e.Response}");
-                //    }
-                //}
-                //else
-                //{
-                //    _s = done[requests[i]];
-                //}
+            
                 string _data = String.Empty;
                 x.DownloadDataCompleted += (sender, e) =>
                 {
                     _data = Encoding.ASCII.GetString(e.Result);
                 };
 
-                //    x.DownloadStringAsync(new Uri(stringBuilder.ToString()));
-                // string source = x.DownloadString(stringBuilder.ToString());
-                //await Task.Run(() =>
-                //{
-                //    try {
-                //        _data = x.DownloadString(stringBuilder.ToString());
-                //    }
-                //    catch (WebException e)
-                //    {
-                //        Logger.LogError($"{e.Message}, {e.Response}");
-                //    }
-
-                //});
+         
 
                 string title = Regex.Match(_s, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
         RegexOptions.IgnoreCase).Groups["Title"].Value;
@@ -475,19 +472,7 @@ namespace WebApplication25.Services
                     _data = Encoding.ASCII.GetString(e.Result);
                 };
 
-                //    x.DownloadStringAsync(new Uri(stringBuilder.ToString()));
-                // string source = x.DownloadString(stringBuilder.ToString());
-                //await Task.Run(() =>
-                //{
-                //    try {
-                //        _data = x.DownloadString(stringBuilder.ToString());
-                //    }
-                //    catch (WebException e)
-                //    {
-                //        Logger.LogError($"{e.Message}, {e.Response}");
-                //    }
-
-                //});
+               
 
                 title = Regex.Match(_s, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
         RegexOptions.IgnoreCase).Groups["Title"].Value;
