@@ -16,11 +16,11 @@
 
    
 
-<form asp-action="SearchInIp" asp-controller="Home">
+<form asp-action="IpTable" asp-controller="Home">
     <input type="search" asp-for="_search" />
     <input type ="submit" />
 </form>
-<form asp-action="GetFilterdedIpData" asp-controller="Home">
+<form asp-action="IpTable" asp-controller="Home">
 @foreach(var i in Model.Filters)
 {
     if (i != null)
@@ -31,17 +31,17 @@
 
                 if (Model.CheckedItems.Contains(i))
                 {
-                    <input class="input_comp" type="checkbox" name="filters" value="@i" checked="checked" rel="Companynames">
+                    <input class="input_comp" type="checkbox" name="filters" value="@i" checked="checked">
                 }
                 else
                 {
-                    <input type="checkbox" class="input_comp" name="filters" value="@i" rel="Companynames" >
+                    <input type="checkbox" class="input_comp" name="filters" value="@i" >
                 }
                 <text> &nbsp;&nbsp;</text>
     }
     else
             {
-                  <input type="checkbox" class="input_comp" name="filters" value="@i" rel="Companynames" >  <text> &nbsp;&nbsp;</text>
+                  <input type="checkbox" class="input_comp" name="filters" value="@i" >  <text> &nbsp;&nbsp;</text>
             }
 }
 }

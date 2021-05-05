@@ -33,9 +33,12 @@ namespace WebApplication25
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddMvc((o) => o.EnableEndpointRouting = false);
             services.AddScoped<HandleLog>();
             services.AddScoped<HandleLogParallel>();
-          
+            services.AddMemoryCache();
+            services.AddSession();
+
             services.AddDbContext<AppDbContext>(options =>options.UseLazyLoadingProxies().
       UseSqlServer(Configuration.GetConnectionString("Default")));
 
@@ -59,16 +62,25 @@ namespace WebApplication25
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
-            app.UseRouting();
+           app.UseRouting();
             
             app.UseAuthorization();
+            app.UseSession();
 
-            app.UseEndpoints(endpoints =>
+            app.UseMvc(d =>
             {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                d.MapRoute(
+                   name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
+
             });
+
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapControllerRoute(
+            //        name: "default",
+            //        pattern: "{controller=Home}/{action=Index}/{id?}");
+            //});
         }
     }
 }

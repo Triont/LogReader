@@ -12,6 +12,8 @@ using System.Text;
 using System.Threading.Tasks;
 using WebApplication25.Models;
 using WebApplication25.ModelView;
+using WebApplication25.Infrastructure;
+
 using WebApplication25.Services;
 
 namespace WebApplication25.Controllers
@@ -74,77 +76,275 @@ namespace WebApplication25.Controllers
         }
 
 
-        public async Task<IActionResult> MainTable()
+        public async Task<IActionResult> MainTable(MainModelView mainModelView, string []filters)
         {
-            if (TempData["MainData"] != null)
-            {
-                var _m = JsonConvert.DeserializeObject<MainModelView>(TempData["MainData"].ToString());
-                var _c = await appDbContext.MainTable.Select(i => i.RequestType).Distinct().ToListAsync();
-                _m.Filters = _c;
+            //if (TempData["MainData"] != null)
+            //{
+            //var str = TempData["MainData"];
+            // //   TempData["MainData"] = null;
+            //  //  var _m = JsonConvert.DeserializeObject<MainModelView>(TempData["MainData"].ToString());
+            //    var _c = await appDbContext.MainTable.Select(i => i.RequestType).Distinct().ToListAsync();
+            // //_m.Filters = _c;
 
-                    return View(_m);
+            //   var rrr=(TempData["MainData"].ToString());
+            //    var tmp = StringCompressor.DecompressString(rrr);
+            //    var w = JsonConvert.DeserializeObject<List<MainTable>>(tmp);
+            //   MainModelView mainModelView = new MainModelView() { Filters = _c, MainTables = w};
+
+            //   return View(mainModelView);
                 
-            }
-            else if(TempData["FilteredMainData"]!=null)
-            {
-                string tmp = TempData["FilteredMainData"].ToString();
-                var m = JsonConvert.DeserializeObject<MainModelView>(tmp);
+            //}
+            //else if(TempData["FilteredMainData"]!=null)
+            //{
+            //    string tmp = TempData["FilteredMainData"].ToString();
+            //    var m = JsonConvert.DeserializeObject<MainModelView>(tmp);
              
-                return View(m);
+            //    return View(m);
                 
+            //}
+
+            if(mainModelView.Search!=null)
+            {
+                long id;
+                if (long.TryParse(mainModelView.Search, out id))
+
+                {
+                    var q = await appDbContext.MainTable.Where(i => i.Id == id).ToListAsync();
+                    var f = await appDbContext.MainTable.ToListAsync();
+                    var filt = f.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
+                    MainModelView mainModelView1 = new MainModelView() { MainTables = q, Filters=filt };
+                    //   TempData["MainData"] = JsonConvert.SerializeObject(mainModelView1);
+                    return View(mainModelView1);
+                }
+                else if (mainModelView.Search.Length != 0)
+                {
+                   var tmp = await appDbContext.MainTable.Where(i => i.FilesInfo.Path.Contains(mainModelView.Search)).ToListAsync();
+
+
+                    var cmp = await appDbContext.MainTable.Where(i => i._IPinfo.CompanyName.Contains(mainModelView.Search)).ToListAsync();
+
+                    tmp.AddRange(cmp);
+                       var f = await appDbContext.MainTable.ToListAsync();
+                      var filt = f.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
+                    MainModelView mainModelView11 = new MainModelView()
+                    {
+                        MainTables = tmp, Filters=filt
+                    };
+                    //string str = JsonConvert.SerializeObject(cmp);
+                    //byte[] arr = Encoding.ASCII.GetBytes(str);
+                    //var tq = StringCompressor.CompressString(str);
+                    ////    string h = "hello";
+                    //TempData["MainData"] = tq;
+                    return View(mainModelView11);
+                    //return RedirectToAction("MainTable", "Home");
+                }
+
             }
 
-            else
+            if(filters!=null)
             {
+                List<MainTable> infos = new List<MainTable>();
+                List<string> _check = new List<string>();
+
+                for (int i = 0; i < filters.Length; i++)
+                {
+                    var r = await appDbContext.MainTable.Where(k => k._IPinfo.CompanyName ==(filters[i])).ToListAsync();
+                    
+                    infos.AddRange(r);
+                    _check.Add(filters[i]);
+                }
+                if (filters.Length == 0)
+                {
+                    infos = await appDbContext.MainTable.ToListAsync();
+                }
+                MainModelView mainModelView123 = new MainModelView()
+                {
+                    CheckedItems = _check,
+                    Filters = await appDbContext.MainTable.Select(i =>
+    i._IPinfo.CompanyName).Distinct().ToListAsync(),
+
+                    //                  Filters = await appDbContext.MainTable.Select(i =>
+                    //i.RequestType).Distinct().ToListAsync(),
+                    MainTables = infos
+                };
+
+                return View(mainModelView123);
+
+            }
+            
                 var _m = await appDbContext.MainTable.ToListAsync();
-                var f = _m.Select(i => i.RequestType).Distinct().ToList();
-                MainModelView mainModelView = new MainModelView() { MainTables = _m, Filters=f };
-                return View(mainModelView);
-            }
+                var fty = _m.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
+                MainModelView mainModelView145 = new MainModelView() { MainTables = _m, Filters=fty };
+                return View(mainModelView145);
+            
         }
-        public async Task<IActionResult> IpTable()
+        public async Task<IActionResult> IpTable(IpModelView ipModelView, string []filters)
         {
-
-          
-          
-            if (TempData["Ip_data"]!=null)
-            {
-                 var tmp = JsonConvert.DeserializeObject<IpModelView>(TempData["Ip_data"].ToString());
-                            if(tmp!=null)
-                            {
-
-                    var _c = tmp.IpData.Select(i => i.CompanyName).Distinct().ToList();
-                    tmp.Filters = _c;
-                                return View(tmp);
-                            }
-            }
-
-            if(TempData["FilteredIp"]!=null)
-            {
-                var tmp = JsonConvert.DeserializeObject<IpModelView>(TempData["FilteredIp"].ToString());
-                return View(tmp);
-            }
-           
             var m = await appDbContext.IpInfo.ToListAsync();
-           var categories = m.Select(i => i.CompanyName).Distinct().ToList();
+            var categories = m.Select(i => i.CompanyName).Distinct().ToList();
+
+
+            //if (TempData["Ip_data"]!=null)
+            //{
+            //     var tmp = JsonConvert.DeserializeObject<IpModelView>(TempData["Ip_data"].ToString());
+            //                if(tmp!=null)
+            //                {
+
+            //        var _c = tmp.IpData.Select(i => i.CompanyName).Distinct().ToList();
+            //        tmp.Filters = _c;
+            //                    return View(tmp);
+            //                }
+            //}
+
+            //if(TempData["FilteredIp"]!=null)
+            //{
+            //    var tmp = JsonConvert.DeserializeObject<IpModelView>(TempData["FilteredIp"].ToString());
+            //    return View(tmp);
+            //}
+
+
+
+            if (ipModelView._search != null)
+            {
+                long id;
+                if (long.TryParse(ipModelView._search, out id))
+
+                {
+                    var q = await appDbContext.IpInfo.Where(i => i.Id == id).ToListAsync();
+
+                    IpModelView ipModel = new IpModelView() { IpData = q , Filters=categories};
+                    // string json_data = JsonConvert.SerializeObject(ipModel, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                    //   TempData["Ip_data"] = json_data;
+                    return View(ipModel);
+                }
+                else
+                {
+
+
+
+                    var cmp = await appDbContext.IpInfo.Where(i => i.CompanyName.Contains(ipModelView._search)).ToListAsync();
+
+
+                    IpModelView _ipView = new IpModelView()
+                    {
+                        IpData = cmp, Filters=categories
+                    };
+                    //      TempData["Ip_data"] = JsonConvert.SerializeObject(ipView, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                    return View(_ipView);
+                }
+
+            }
+            if(filters!=null)
+            {
+                List<IPinfo> infos = new List<IPinfo>();
+                List<string> _c = new List<string>();
+                var r = await appDbContext.IpInfo.ToListAsync();
+
+                for (int qq = 0; qq < r.Count; qq++)
+                {
+                    for (int i = 0; i < filters.Length; i++)
+                    {
+
+                        if (r[qq].CompanyName==(filters[i]))
+                        {
+                            infos.Add(r[qq]);
+                        }
+                        //var rr = await appDbContext.MainTable.Select(tt => tt._IPinfo).Where(q => q.CompanyName.Contains(filters[i])).ToListAsync();
+                        //infos.AddRange(r);
+
+                        _c.Add(filters[i]);
+                    }
+                }
+                if (filters.Length == 0)
+                {
+                    infos = await appDbContext.IpInfo.ToListAsync();
+                }
+                IpModelView __ipModelView = new IpModelView()
+                {
+                    CheckedItems = _c,
+                    Filters = await appDbContext.IpInfo.Select(i => i.CompanyName).Distinct().ToListAsync(),
+                    IpData = infos
+                };
+                return View(__ipModelView);
+            }
+
+         
             var _m = new IpModelView() { IpData = m, Filters=categories };
             return View(_m);
         }
-        public async Task<IActionResult> FilesTable()
+        public async Task<IActionResult> FilesTable( FilesModelView filesModelView, string [] filters)
         {
-            if(TempData["FilesData"]!=null)
+            //if(TempData["FilesData"]!=null)
+            //{
+            // var tmp=   JsonConvert.DeserializeObject<FilesModelView>(TempData["FilesData"].ToString());
+            //  var names=  tmp.FilesInfos.Select(i => i.Name).Distinct().ToList();
+            //    tmp.Filters = names;
+            //    return View(tmp);
+            //}
+
+            //if(TempData["FilteredFiles"]!=null)
+            //{
+            //    var _t = JsonConvert.DeserializeObject<FilesModelView>(TempData["FilteredFiles"].ToString());
+            //    _t.Filters = await appDbContext.FilesInfos.Select(i => i.Name).Distinct().ToListAsync();
+            //    return View(_t);
+            //}
+
+
+            if (filesModelView._search != null)
             {
-             var tmp=   JsonConvert.DeserializeObject<FilesModelView>(TempData["FilesData"].ToString());
-              var names=  tmp.FilesInfos.Select(i => i.Name).Distinct().ToList();
-                tmp.Filters = names;
-                return View(tmp);
+                long id;
+                if (long.TryParse(filesModelView._search, out id))
+
+                {
+                    var q = await appDbContext.FilesInfos.Where(i => i.Id == id).ToListAsync();
+                    FilesModelView mainModelView1 = new FilesModelView()
+                    {
+                        FilesInfos = q,
+                         Filters = await appDbContext.FilesInfos.Select(i=>i.Name).Distinct().ToListAsync()
+                    };
+                    return View(mainModelView1);
+                }
+                else
+                {
+                     var tmp = await appDbContext.FilesInfos.Where(i => i.Path.Contains(filesModelView._search)).ToListAsync();
+
+
+                    var cmp = await appDbContext.FilesInfos.Where(i => i.Name.Contains(filesModelView._search)).ToListAsync();
+
+                    tmp.AddRange(cmp);
+                    FilesModelView fileModelView = new FilesModelView()
+                    {
+                        FilesInfos = tmp,
+                           Filters = await appDbContext.FilesInfos.Select(i => i.Name).Distinct().ToListAsync()
+                    };
+                    //       TempData["FilesData"] = JsonConvert.SerializeObject(fileModelView1);
+
+                    return View(filesModelView);
+                }
+
             }
 
-            if(TempData["FilteredFiles"]!=null)
+            if(filters!=null)
             {
-                var _t = JsonConvert.DeserializeObject<FilesModelView>(TempData["FilteredFiles"].ToString());
-                _t.Filters = await appDbContext.FilesInfos.Select(i => i.Name).Distinct().ToListAsync();
-                return View(_t);
+                List<FilesInfo> infos = new List<FilesInfo>();
+                List<string> check = new List<string>();
+                for (int i = 0; i < filters.Length; i++)
+                {
+                    var r = await appDbContext.FilesInfos.Where(k => k.Name.Contains(filters[i])).ToListAsync();
+                    infos.AddRange(r);
+                    check.Add(filters[i]);
+                }
+                if (filters.Length == 0)
+                {
+                    infos = await appDbContext.FilesInfos.ToListAsync();
+                }
+                FilesModelView f_ilesModelView = new FilesModelView();
+                f_ilesModelView.CheckedItems = check;
+                f_ilesModelView.FilesInfos = infos;
+                f_ilesModelView.Filters = await appDbContext.FilesInfos.Select(i => i.Name).Distinct().ToListAsync();
+
+
+                return View(f_ilesModelView);
             }
 
             var m = await appDbContext.FilesInfos.ToListAsync();
@@ -168,10 +368,10 @@ namespace WebApplication25.Controllers
                     var f = await appDbContext.MainTable.ToListAsync();
                   var filt=  f.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
                     MainModelView mainModelView1 = new MainModelView() { MainTables = q };
-                    TempData["MainData"] = JsonConvert.SerializeObject(mainModelView1);
+                TempData["MainData"] = JsonConvert.SerializeObject(mainModelView1);
                     return RedirectToAction("MainTable", "Home");
                 }
-                else
+                else if(mainModelView.Search.Length!=0)
                 {
                     //var tmp = await appDbContext.MainTable.Where(i => i.FilesInfo.Path.Contains(mainModelView.Search)).ToListAsync();
                  
@@ -181,12 +381,17 @@ namespace WebApplication25.Controllers
                     //tmp.AddRange(cmp);
                  //   var f = await appDbContext.MainTable.ToListAsync();
                   //  var filt = f.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
-                    MainModelView mainModelView1 = new MainModelView()
+                    MainModelView mainModelView11 = new MainModelView()
                     {
-                        MainTables = cmp
+                        MainTables = cmp, 
                     };
-                    TempData["MainData"] = JsonConvert.SerializeObject(mainModelView1, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-                    return RedirectToAction("MainTable", "Home");
+                    string str= JsonConvert.SerializeObject(cmp);
+                    byte[] arr = Encoding.ASCII.GetBytes(str);
+                   var tq= StringCompressor.CompressString(str);
+                //    string h = "hello";
+                  TempData["MainData"] = tq;
+                    
+                    //return RedirectToAction("MainTable", "Home");
                 }
 
             }
@@ -212,8 +417,8 @@ namespace WebApplication25.Controllers
                     var q = await appDbContext.IpInfo.Where(i => i.Id == id).ToListAsync();
                     
                     IpModelView ipModel = new IpModelView() { IpData = q };
-                    string json_data = JsonConvert.SerializeObject(ipModel, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-                    TempData["Ip_data"] = json_data;
+                   // string json_data = JsonConvert.SerializeObject(ipModel, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+                 //   TempData["Ip_data"] = json_data;
                     return RedirectToAction("IpTable", "Home");
                 }
                 else 
@@ -228,7 +433,7 @@ namespace WebApplication25.Controllers
                     {
                         IpData = cmp
                     };
-                    TempData["Ip_data"] = JsonConvert.SerializeObject(ipView, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+              //      TempData["Ip_data"] = JsonConvert.SerializeObject(ipView, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
                     return RedirectToAction("IpTable", "Home");
                 }
 
@@ -269,7 +474,7 @@ namespace WebApplication25.Controllers
                         FilesInfos = cmp
                     //    Filters = await appDbContext.FilesInfos.Select(i => i.Name).Distinct().ToListAsync()
                     };
-                    TempData["FilesData"] = JsonConvert.SerializeObject(fileModelView1);
+             //       TempData["FilesData"] = JsonConvert.SerializeObject(fileModelView1);
 
                     return RedirectToAction("FilesTable", "Home");
                 }

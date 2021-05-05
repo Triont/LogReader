@@ -16,12 +16,12 @@
 
    
 
-<form asp-action="SearchInFiles" asp-controller="Home" method="post">
+<form asp-action="FilesTable" asp-controller="Home" method="post">
     <input type="search" asp-for="_search" />
     <input type ="submit" />
 </form>
 
-<form asp-action="GetFilterdedFilesData" asp-controller="Home">
+<form asp-action="FilesTable" asp-controller="Home">
     @foreach(var i in Model.Filters)
 {
     if (i != null)
