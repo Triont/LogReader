@@ -22,7 +22,7 @@
 </form>
 
 <form asp-action="FilesTable" asp-controller="Home">
-<select name="filters"> 
+<select name="filters" multiple> 
     @foreach(var i in Model.Filters)
 {
     if (i != null)
