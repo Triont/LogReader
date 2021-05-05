@@ -62,11 +62,11 @@ namespace WebApplication25.Controllers
                     uploadLogModelView.FormFile.CopyTo(fileStream);
                     fileStream.Close();
 
-                //    await Task.Run(() => handleLog.GetData(filePath));
+                  await Task.Run(() => handleLog.GetData(filePath));
 
 
 
-                  await handleLogParallel.GetData(filePath);
+                //  await handleLogParallel.GetData(filePath);
 
 
 
@@ -75,14 +75,15 @@ namespace WebApplication25.Controllers
             return RedirectToAction("Index");
         }
 
-
+        
         public async Task<IActionResult> MainTable(MainModelView mainModelView, string []filters)
         {
            
-
+            
             if(mainModelView.Search!=null)
             {
                 long id;
+                //try get long value from search string
                 if (long.TryParse(mainModelView.Search, out id))
 
                 {
@@ -90,9 +91,10 @@ namespace WebApplication25.Controllers
                     var f = await appDbContext.MainTable.ToListAsync();
                     var filt = f.Select(i => i._IPinfo.CompanyName).Distinct().ToList();
                     MainModelView mainModelView1 = new MainModelView() { MainTables = q, Filters=filt };
-                    //   TempData["MainData"] = JsonConvert.SerializeObject(mainModelView1);
+
                     return View(mainModelView1);
                 }
+                //else do search in path and company names
                 else if (mainModelView.Search.Length != 0)
                 {
                    var tmp = await appDbContext.MainTable.Where(i => i.FilesInfo.Path.Contains(mainModelView.Search)).ToListAsync();
@@ -123,7 +125,7 @@ namespace WebApplication25.Controllers
                 {
                     string tmp = filters[i].Remove(filters[i].Length-2, 2);
                       var r = await appDbContext.MainTable.Where(k => k._IPinfo.CompanyName.Contains(tmp)).ToListAsync();
-                 //   var qq = await appDbContext.IpInfo.Where(o => o.CompanyName.Contains(tmp)).ToListAsync();
+             
                     
                    infos.AddRange(r);
                     _check.Add(filters[i]);
@@ -177,9 +179,7 @@ namespace WebApplication25.Controllers
                     var q = await appDbContext.IpInfo.Where(i => i.Id == id).ToListAsync();
 
                     IpModelView ipModel = new IpModelView() { IpData = q , Filters=categories};
-                    // string json_data = JsonConvert.SerializeObject(ipModel, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-                    //   TempData["Ip_data"] = json_data;
-                    return View(ipModel);
+                     return View(ipModel);
                 }
                 else
                 {
@@ -193,8 +193,7 @@ namespace WebApplication25.Controllers
                     {
                         IpData = cmp, Filters=categories
                     };
-                    //      TempData["Ip_data"] = JsonConvert.SerializeObject(ipView, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-                    return View(_ipView);
+                               return View(_ipView);
                 }
 
             }
@@ -368,8 +367,6 @@ namespace WebApplication25.Controllers
                     var q = await appDbContext.IpInfo.Where(i => i.Id == id).ToListAsync();
                     
                     IpModelView ipModel = new IpModelView() { IpData = q };
-                   // string json_data = JsonConvert.SerializeObject(ipModel, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-                 //   TempData["Ip_data"] = json_data;
                     return RedirectToAction("IpTable", "Home");
                 }
                 else 
@@ -384,8 +381,7 @@ namespace WebApplication25.Controllers
                     {
                         IpData = cmp
                     };
-              //      TempData["Ip_data"] = JsonConvert.SerializeObject(ipView, Formatting.None, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-                    return RedirectToAction("IpTable", "Home");
+                      return RedirectToAction("IpTable", "Home");
                 }
 
             }
@@ -407,14 +403,14 @@ namespace WebApplication25.Controllers
                 {
                     var q = await appDbContext.FilesInfos.Where(i => i.Id == id).ToListAsync();
                     FilesModelView mainModelView1 = new FilesModelView() { FilesInfos = q,
-                       // Filters = await appDbContext.FilesInfos.Select(i=>i.Name).Distinct().ToListAsync()
+                
                     };
                     TempData["FilesData"] = JsonConvert.SerializeObject(mainModelView1);
                     return RedirectToAction("FilesTable", "Home");
                 }
                 else
                 {
-                   // var tmp = await appDbContext.FilesInfos.Where(i => i.Path.Contains(filesnModelView._search)).ToListAsync();
+                   
 
 
                     var cmp = await appDbContext.FilesInfos.Where(i => i.Name.Contains(filesnModelView._search)).ToListAsync();
@@ -423,10 +419,9 @@ namespace WebApplication25.Controllers
                     FilesModelView  fileModelView1 = new FilesModelView()
                     {
                         FilesInfos = cmp
-                    //    Filters = await appDbContext.FilesInfos.Select(i => i.Name).Distinct().ToListAsync()
+                  
                     };
-             //       TempData["FilesData"] = JsonConvert.SerializeObject(fileModelView1);
-
+         
                     return RedirectToAction("FilesTable", "Home");
                 }
 

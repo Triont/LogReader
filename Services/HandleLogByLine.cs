@@ -113,11 +113,23 @@ namespace WebApplication25.Services
                          var compName_ = await appDbContext.IpInfo.FirstOrDefaultAsync(i => i.IPAddress == _ip);
                          compNames.Add(compName_.CompanyName);
                      }
-                     var check_name = await appDbContext.FilesInfos.FirstOrDefaultAsync(a => a.Path == url);
+                    int _res;
+                    long volume;
+
+                    GetResultAndDataVolume(allowed[i], out _res, out volume);
+                    var check_name = await appDbContext.FilesInfos.FirstOrDefaultAsync(a => a.Path == url);
                      if (check_name==null)
                      {
-                             var name = await GetNames(url);
-                             names.Add(name);
+                        if(_res==200)
+                        {
+                                var name = await GetNames(url);
+                                 names.Add(name);
+                        }
+                        else
+                        {
+                            names.Add(String.Empty);
+                        }
+                           
                      }
                      else
                      {
@@ -125,27 +137,27 @@ namespace WebApplication25.Services
                          names.Add(_name.Name);
                      }
                     
-                     int _res;
-                     long volume;
-                  
-                     GetResultAndDataVolume(allowed[i], out _res, out volume);
+                 
                      results.Add(_res);
                      dataVolumes.Add(volume);
                    
 
                     
                  }
-                
 
 
-                for(int i=0; i<allowed.Count;i++)
+
+                for (int i = 0; i < allowed.Count; i++)
                 {
-                   //if(compNames.Count==ip_list.Count && urls.Count==compNames.Count && urls.Count==names.Count && dataVolumes.Count==urls.Count)
-                   // infoIp.CompanyName = compNames[i];
-                   // infoIp.IPAddress = ip_list[i];
-                   // filesInfo.Path = urls[i];
-                   // filesInfo.Name = names[i];
-                   // filesInfo.DataVolume = dataVolumes[i];
+                    //if(compNames.Count==ip_list.Count && urls.Count==compNames.Count && urls.Count==names.Count && dataVolumes.Count==urls.Count)
+                    infoIp.CompanyName = compNames[i];
+                    infoIp.IPAddress = ip_list[i];
+                    if (names[i] != string.Empty)
+                    {
+                        filesInfo.Path = urls[i];
+                        filesInfo.Name = names[i];
+                        filesInfo.DataVolume = dataVolumes[i];
+                    }
                     if (!ip.Contains(JsonConvert.SerializeObject(infoIp)))
                     {
                         infoIp = new IPinfo() { CompanyName = compNames[i], IPAddress = ip_list[i] };
@@ -156,32 +168,36 @@ namespace WebApplication25.Services
                         filesInfo = new FilesInfo() { Name = names[i], Path = urls[i], DataVolume = dataVolumes[i] };
                     }
 
+                    if ((appDbContext.IpInfo.Where(q => q.IPAddress == infoIp.IPAddress).Count() == 0) && appDbContext.FilesInfos.Where(q => q.Path == filesInfo.Path).Count() == 0)
+                    {
 
-                    MainTable mainTable = new MainTable()
-                    {
-                        DataVolume = dataVolumes[i],
-                        DateTime = dateTimes[i],
-                        DateTimeLog = dateTimeStr[i],
-                        FilesInfo = filesInfo,
-                        _IPinfo = infoIp,
-                        RequestType = request_types[i],
-                        RequestResult = results[i]
-                    };
-                    if (!mainTables.Contains(JsonConvert.SerializeObject(mainTable)))
-                    {
-                        mainTables.Add(JsonConvert.SerializeObject(mainTable));
-                        await appDbContext.MainTable.AddAsync(mainTable);
 
-                    }
-                    if (!files.Contains(JsonConvert.SerializeObject(filesInfo)))
-                    {
-                        files.Add(JsonConvert.SerializeObject(filesInfo));
-                        await appDbContext.FilesInfos.AddAsync(filesInfo);
-                    }
-                    if (!ip.Contains(JsonConvert.SerializeObject(infoIp)))
-                    {
-                        ip.Add(JsonConvert.SerializeObject(infoIp));
-                        await appDbContext.IpInfo.AddAsync(infoIp);
+                        MainTable mainTable = new MainTable()
+                        {
+                            DataVolume = dataVolumes[i],
+                            DateTime = dateTimes[i],
+                            DateTimeLog = dateTimeStr[i],
+                            FilesInfo = filesInfo,
+                            _IPinfo = infoIp,
+                            RequestType = request_types[i],
+                            RequestResult = results[i]
+                        };
+                        if (!mainTables.Contains(JsonConvert.SerializeObject(mainTable)))
+                        {
+                            mainTables.Add(JsonConvert.SerializeObject(mainTable));
+                            await appDbContext.MainTable.AddAsync(mainTable);
+
+                        }
+                        if (!files.Contains(JsonConvert.SerializeObject(filesInfo)))
+                        {
+                            files.Add(JsonConvert.SerializeObject(filesInfo));
+                            await appDbContext.FilesInfos.AddAsync(filesInfo);
+                        }
+                        if (!ip.Contains(JsonConvert.SerializeObject(infoIp)))
+                        {
+                            ip.Add(JsonConvert.SerializeObject(infoIp));
+                            await appDbContext.IpInfo.AddAsync(infoIp);
+                        }
                     }
                 }
                 await appDbContext.SaveChangesAsync();
