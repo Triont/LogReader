@@ -16,13 +16,13 @@ using Newtonsoft;
 
 namespace WebApplication25.Services
 {
-    public class HandleLogParallel
+    public class HandleLogByLine
     {
 
 
         private readonly AppDbContext appDbContext;
         private ILogger<HandleLog> Logger;
-        public HandleLogParallel(AppDbContext appDbContext, ILogger<HandleLog> logger)
+        public HandleLogByLine(AppDbContext appDbContext, ILogger<HandleLog> logger)
         {
             this.appDbContext = appDbContext;
             this.Logger = logger;
@@ -85,8 +85,9 @@ namespace WebApplication25.Services
                 List<long> dataVolumes = new List<long>();
                 List<string> names = new List<string>();
 
-                Parallel.For(0, allowed.Count, async(i) =>
-                 {
+             //   Parallel.For(0, allowed.Count, async(i) =>
+                for(int i=0; i<allowed.Count;i++)
+                {
                      var _ip = GetIp(allowed[i]);
                      ip_list.Add(GetIp(allowed[i]));
                      var _datetimestr = await GetDateTimesString(allowed[i]);
@@ -134,7 +135,7 @@ namespace WebApplication25.Services
 
                     
                  }
-                );
+                
 
 
                 for(int i=0; i<allowed.Count;i++)
@@ -398,40 +399,14 @@ namespace WebApplication25.Services
                     }
 
                 }
-                //if (!done.ContainsKey(requests[i]))
-                //{
-                //    try
-                //    {
-                //        _s = await x.DownloadStringTaskAsync(stringBuilder.ToString());
-                //    }
-                //    catch (WebException e)
-                //    {
-                //        Logger.LogError($"{e.Message}, {e.Response}");
-                //    }
-                //}
-                //else
-                //{
-                //    _s = done[requests[i]];
-                //}
+            
                 string _data = String.Empty;
                 x.DownloadDataCompleted += (sender, e) =>
                 {
                     _data = Encoding.ASCII.GetString(e.Result);
                 };
 
-                //    x.DownloadStringAsync(new Uri(stringBuilder.ToString()));
-                // string source = x.DownloadString(stringBuilder.ToString());
-                //await Task.Run(() =>
-                //{
-                //    try {
-                //        _data = x.DownloadString(stringBuilder.ToString());
-                //    }
-                //    catch (WebException e)
-                //    {
-                //        Logger.LogError($"{e.Message}, {e.Response}");
-                //    }
-
-                //});
+         
 
                 string title = Regex.Match(_s, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
         RegexOptions.IgnoreCase).Groups["Title"].Value;
@@ -497,19 +472,7 @@ namespace WebApplication25.Services
                     _data = Encoding.ASCII.GetString(e.Result);
                 };
 
-                //    x.DownloadStringAsync(new Uri(stringBuilder.ToString()));
-                // string source = x.DownloadString(stringBuilder.ToString());
-                //await Task.Run(() =>
-                //{
-                //    try {
-                //        _data = x.DownloadString(stringBuilder.ToString());
-                //    }
-                //    catch (WebException e)
-                //    {
-                //        Logger.LogError($"{e.Message}, {e.Response}");
-                //    }
-
-                //});
+               
 
                 title = Regex.Match(_s, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
         RegexOptions.IgnoreCase).Groups["Title"].Value;

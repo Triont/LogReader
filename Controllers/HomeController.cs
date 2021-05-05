@@ -24,9 +24,9 @@ namespace WebApplication25.Controllers
         private readonly AppDbContext appDbContext;
         private readonly IWebHostEnvironment hostingEnvironment;
         private readonly HandleLog handleLog;
-        private readonly HandleLogParallel handleLogParallel;
+        private readonly HandleLogByLine handleLogParallel;
         public HomeController(ILogger<HomeController> logger, AppDbContext appDbContext,
-            IWebHostEnvironment webHostEnvironment, HandleLog handleLog, HandleLogParallel handleLogParallel)
+            IWebHostEnvironment webHostEnvironment, HandleLog handleLog, HandleLogByLine handleLogParallel)
         {
             _logger = logger;
             this.appDbContext = appDbContext;
@@ -62,11 +62,11 @@ namespace WebApplication25.Controllers
                     uploadLogModelView.FormFile.CopyTo(fileStream);
                     fileStream.Close();
 
-                    await Task.Run(() => handleLog.GetData(filePath));
+                //    await Task.Run(() => handleLog.GetData(filePath));
 
 
 
-                    //await handleLogParallel.GetData(filePath);
+                  await handleLogParallel.GetData(filePath);
 
 
 
@@ -78,30 +78,7 @@ namespace WebApplication25.Controllers
 
         public async Task<IActionResult> MainTable(MainModelView mainModelView, string []filters)
         {
-            //if (TempData["MainData"] != null)
-            //{
-            //var str = TempData["MainData"];
-            // //   TempData["MainData"] = null;
-            //  //  var _m = JsonConvert.DeserializeObject<MainModelView>(TempData["MainData"].ToString());
-            //    var _c = await appDbContext.MainTable.Select(i => i.RequestType).Distinct().ToListAsync();
-            // //_m.Filters = _c;
-
-            //   var rrr=(TempData["MainData"].ToString());
-            //    var tmp = StringCompressor.DecompressString(rrr);
-            //    var w = JsonConvert.DeserializeObject<List<MainTable>>(tmp);
-            //   MainModelView mainModelView = new MainModelView() { Filters = _c, MainTables = w};
-
-            //   return View(mainModelView);
-                
-            //}
-            //else if(TempData["FilteredMainData"]!=null)
-            //{
-            //    string tmp = TempData["FilteredMainData"].ToString();
-            //    var m = JsonConvert.DeserializeObject<MainModelView>(tmp);
-             
-            //    return View(m);
-                
-            //}
+           
 
             if(mainModelView.Search!=null)
             {
@@ -130,13 +107,9 @@ namespace WebApplication25.Controllers
                     {
                         MainTables = tmp, Filters=filt
                     };
-                    //string str = JsonConvert.SerializeObject(cmp);
-                    //byte[] arr = Encoding.ASCII.GetBytes(str);
-                    //var tq = StringCompressor.CompressString(str);
-                    ////    string h = "hello";
-                    //TempData["MainData"] = tq;
+                  
                     return View(mainModelView11);
-                    //return RedirectToAction("MainTable", "Home");
+                  
                 }
 
             }
@@ -191,23 +164,7 @@ namespace WebApplication25.Controllers
             var categories = m.Select(i => i.CompanyName).Distinct().ToList();
 
 
-            //if (TempData["Ip_data"]!=null)
-            //{
-            //     var tmp = JsonConvert.DeserializeObject<IpModelView>(TempData["Ip_data"].ToString());
-            //                if(tmp!=null)
-            //                {
-
-            //        var _c = tmp.IpData.Select(i => i.CompanyName).Distinct().ToList();
-            //        tmp.Filters = _c;
-            //                    return View(tmp);
-            //                }
-            //}
-
-            //if(TempData["FilteredIp"]!=null)
-            //{
-            //    var tmp = JsonConvert.DeserializeObject<IpModelView>(TempData["FilteredIp"].ToString());
-            //    return View(tmp);
-            //}
+         
 
 
 
@@ -281,20 +238,7 @@ namespace WebApplication25.Controllers
         }
         public async Task<IActionResult> FilesTable( FilesModelView filesModelView, string [] filters)
         {
-            //if(TempData["FilesData"]!=null)
-            //{
-            // var tmp=   JsonConvert.DeserializeObject<FilesModelView>(TempData["FilesData"].ToString());
-            //  var names=  tmp.FilesInfos.Select(i => i.Name).Distinct().ToList();
-            //    tmp.Filters = names;
-            //    return View(tmp);
-            //}
-
-            //if(TempData["FilteredFiles"]!=null)
-            //{
-            //    var _t = JsonConvert.DeserializeObject<FilesModelView>(TempData["FilteredFiles"].ToString());
-            //    _t.Filters = await appDbContext.FilesInfos.Select(i => i.Name).Distinct().ToListAsync();
-            //    return View(_t);
-            //}
+        
 
 
             if (filesModelView._search != null)

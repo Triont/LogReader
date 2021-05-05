@@ -17,29 +17,16 @@
 </form>
 
 <form asp-action="MainTable" asp-controller="Home">
-@foreach(var i in Model.Filters)
+<select name="filters"> 
+    @foreach(var i in Model.Filters)
 {
     if (i != null)
     {
-          <label>@i</label>
-    if (Model.CheckedItems != null)
-            {
-                if(Model.CheckedItems.Contains(i))
-                {
-                     <input type="checkbox" name="filters" value="@i" checked="checked">
-                }
-                else
-                {
-                <input type="checkbox" name="filters" value="@i">
-    }
-    }
-    else
-            {
-                <input type="checkbox" name="filters" value="@i">
-            }
-      <text> &nbsp;&nbsp;</text>
+        
+            <option value="@i">@i</option>
 }
 }
+</select>
 <input type="submit" />
 </form>
 
