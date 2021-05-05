@@ -11,12 +11,12 @@
 @Html.ActionLink("Show files table", "FilesTable", "Home")
 
    
-<form asp-action="SearchInMain" asp-controller="Home">
+<form asp-action="MainTable" asp-controller="Home">
     <input type="search" asp-for="Search" />
     <input type ="submit" />
 </form>
 
-<form asp-action="GetFilterdedMainData" asp-controller="Home">
+<form asp-action="MainTable" asp-controller="Home">
 @foreach(var i in Model.Filters)
 {
     if (i != null)
