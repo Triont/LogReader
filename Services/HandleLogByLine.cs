@@ -455,10 +455,16 @@ namespace WebApplication25.Services
                 x.Proxy = null;
                 string _s = string.Empty;
                 string title = string.Empty;
-                if (!done.ContainsKey(request))
+            if (!done.ContainsKey(request))
+            {
+                var tmp_db = await appDbContext.FilesInfos.FirstOrDefaultAsync(tq => tq.Path == request);
+                if (tmp_db == null)
                 {
                     try
                     {
+
+
+
                         _s = await x.DownloadStringTaskAsync(stringBuilder.ToString());
                         title = Regex.Match(_s, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
       RegexOptions.IgnoreCase).Groups["Title"].Value;
@@ -472,6 +478,7 @@ namespace WebApplication25.Services
                             var __tmp = title.Split(new char[] { '/' }).Last();
                             done.Add(request, __tmp);
                         }
+
                     }
                     catch (WebException e)
                     {
@@ -480,9 +487,15 @@ namespace WebApplication25.Services
                 }
                 else
                 {
-                    _s = done[request];
+                    _s = tmp_db.Name;
+                    done.Add(request, _s);
                 }
-                string _data = String.Empty;
+            }
+            else
+            {
+                _s = done[request];
+            }
+            string _data = String.Empty;
                 x.DownloadDataCompleted += (sender, e) =>
                 {
                     _data = Encoding.ASCII.GetString(e.Result);

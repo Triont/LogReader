@@ -62,11 +62,11 @@ namespace WebApplication25.Controllers
                     uploadLogModelView.FormFile.CopyTo(fileStream);
                     fileStream.Close();
 
-                  await Task.Run(() => handleLog.GetData(filePath));
+               //   await Task.Run(() => handleLog.GetData(filePath));
 
 
 
-                //  await handleLogParallel.GetData(filePath);
+                  await handleLogParallel.GetData(filePath);
 
 
 
