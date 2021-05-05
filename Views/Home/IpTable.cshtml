@@ -21,7 +21,7 @@
     <input type ="submit" />
 </form>
 <form asp-action="IpTable" asp-controller="Home">
-<select name="filters"> 
+<select name="filters" multiple> 
     @foreach(var i in Model.Filters)
 {
     if (i != null)
