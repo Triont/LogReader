@@ -31,6 +31,7 @@ namespace WebApplication25.Services
     
         public async Task<bool> GetData(string path)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetData method HandleLog class is started");
             if (File.Exists(path))
             {
                 lines = File.ReadAllLines(path);
@@ -93,7 +94,7 @@ namespace WebApplication25.Services
 
                 for (int _i = 0; _i < allowed.Count; _i++)
                 {
-
+                    Logger.LogInformation($"Start loop for save data");
                     var _m_count = appDbContext.MainTable.Count();
                     MainTable _main = new MainTable();
                     if (_m_count != 0)
@@ -289,7 +290,7 @@ namespace WebApplication25.Services
                     }
                    
                     await appDbContext.SaveChangesAsync();
-
+                    Logger.LogInformation($"{DateTime.Now.ToString()} data is saved to db");
 
                 }
 
@@ -322,6 +323,7 @@ namespace WebApplication25.Services
         }
         public async Task<List<string>> GetAllIp(List<string> lines)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetAllIp method HandleLog class is started");
             Regex ip = new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
             Regex incorrect_ip = new Regex(@"\b\d{1,3}\-\d{1,3}\-\d{1,3}\-\d{1,3}");
             List<string> vs = new List<string>();
@@ -373,6 +375,7 @@ namespace WebApplication25.Services
 
         public async Task<List<string>> GetDateTimesString(List<string> lines)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetDateTimesString method HandleLog class is started");
             List<string> tmp = new List<string>();
             Regex regex = new Regex(@"\[([^[\]]+)\]");
 
@@ -397,6 +400,7 @@ namespace WebApplication25.Services
 
         public async Task< List<DateTime>> _GetDateTimes(List<string> str)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} _GetDateTimes method HandleLog class is started");
             List<DateTime> dateTimes = new List<DateTime>();
           await  Task.Run(() =>
             {
@@ -456,6 +460,7 @@ namespace WebApplication25.Services
 
         public async Task<List<string>> GetNames(List<string> requests, Dictionary<string, string> done, List<int> resutl_request, string url = "http://tariscope.com")
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is started");
             List<string> names = new List<string>();
             for (int i = 0; i < requests.Count; i++)
             {
@@ -531,6 +536,7 @@ namespace WebApplication25.Services
 
         public async Task<Tuple<List<string>, Dictionary<string, string>>> GetNames(List<string> requests, string url  = "http://tariscope.com")
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is started");
             Dictionary<string, string> done = new Dictionary<string, string>();
 
             List<string> names = new List<string>();
@@ -610,6 +616,7 @@ namespace WebApplication25.Services
 
         public void ParseRequest(List<string> requests, out List<string> Type, out List<string> url)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} ParseRequest method HandleLog class is started");
             Type = new List<string>();
             url = new List<string>();
          
@@ -624,7 +631,7 @@ namespace WebApplication25.Services
         }
         public void GetResultAndDataVolume(List<string> str, out List<int> results, out List<long> volume)
         {
-
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetREsultAndDataVolume method HandleLog class is started");
             results = new List<int>();
             volume = new List<long>();
             for (int i = 0; i < str.Count; i++)
@@ -662,7 +669,9 @@ namespace WebApplication25.Services
 
         public async Task<List<string>> GetCompaniesName(List<string> ip)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetCompaniesNames method HandleLog class is started");
             using var cl = new HttpClient();
+            //token on ipinfo.io, monthly limit has already been used
             var api = new IpInfoApi("530f45ab84efc1",cl);
           
             List<string> companies = new List<string>();
@@ -693,6 +702,7 @@ namespace WebApplication25.Services
 
         public async  Task< List<string>> GetRequests(List<string> all)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetRequests method HandleLog class is started");
             Regex regex1 = new Regex("\"[^\"]*\"");
             List<string> vs = new List<string>();
 
