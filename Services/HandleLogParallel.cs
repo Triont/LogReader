@@ -51,21 +51,21 @@ namespace WebApplication25.Services
                     {
                         if (!(lines[i].Contains(" - admin ") || lines[i].Contains("/administrator ")))
                         {
-                          //  allowed.Add(lines[i]);
+                          allowed.Add(lines[i]);
                         }
                     }
                 }
 
-                allowed.Add(lines[0]);
-                allowed.Add(lines[1]);
-                allowed.Add(lines[4593]);
-                allowed.Add(lines[249]);
-                allowed.Add(lines[359]);
-                allowed.Add(lines[499]); allowed.Add(lines[5]);
-                allowed.Add(lines[1540]);
-                allowed.Add(lines[888]); allowed.Add(lines[89]);
-                allowed.Add(lines[90]);
-                allowed.Add(lines[493]);
+                //allowed.Add(lines[0]);
+                //allowed.Add(lines[1]);
+                //allowed.Add(lines[4593]);
+                //allowed.Add(lines[249]);
+                //allowed.Add(lines[359]);
+                //allowed.Add(lines[499]); allowed.Add(lines[5]);
+                //allowed.Add(lines[1540]);
+                //allowed.Add(lines[888]); allowed.Add(lines[89]);
+                //allowed.Add(lines[90]);
+                //allowed.Add(lines[493]);
 
                 List<string> mainTables = new List<string>();
                 List<string> ip = new List<string>();
@@ -98,10 +98,32 @@ namespace WebApplication25.Services
                      ParseRequest(t, out request, out url);
                      request_types.Add(request);
                      urls.Add(url);
-                     var compName = await GetCompaniesName(_ip);
-                     compNames.Add(compName);
-                     var name = await GetNames(allowed[i]);
-                     names.Add(name);
+                     
+                     var check_comp = await appDbContext.IpInfo.FirstOrDefaultAsync(i => i.IPAddress==_ip);
+                     if (check_comp == null)
+                     {
+                         var compName = await GetCompaniesName(_ip);
+                         compNames.Add(compName);
+                     }
+                     else
+                     {
+
+
+                         var compName_ = await appDbContext.IpInfo.FirstOrDefaultAsync(i => i.IPAddress == _ip);
+                         compNames.Add(compName_.CompanyName);
+                     }
+                     var check_name = await appDbContext.FilesInfos.FirstOrDefaultAsync(a => a.Path == url);
+                     if (check_name==null)
+                     {
+                             var name = await GetNames(url);
+                             names.Add(name);
+                     }
+                     else
+                     {
+                         var _name = await appDbContext.FilesInfos.FirstOrDefaultAsync(a => a.Path == url);
+                         names.Add(_name.Name);
+                     }
+                    
                      int _res;
                      long volume;
                   
