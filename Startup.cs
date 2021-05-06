@@ -38,8 +38,10 @@ namespace WebApplication25
             services.AddScoped<HandleLogByLine>();
             services.AddMemoryCache();
             services.AddSession();
+            //Using hosted service
             services.AddSingleton<IHostedService, HostService>();
-            services.AddHostedService<HostedBackground>();
+            //or
+           // services.AddHostedService<HostedBackground>();
 
             services.AddDbContext<AppDbContext>(options =>options.UseLazyLoadingProxies().
       UseSqlServer(Configuration.GetConnectionString("Default")));
