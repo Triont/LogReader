@@ -564,7 +564,7 @@ namespace WebApplication25.Services
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             httpClientHandler.ServerCertificateCustomValidationCallback= (sender, cert, chain, sslPolicyErrors) => { return true; };
             using var cl = new HttpClient(httpClientHandler);
-            var api = new IpInfoApi("530f45ab84efc1", cl);
+            var api = new IpInfoApi("e233289eabbf1b", cl);
 
             var r = await api.GetOrganizationByIpAsync(_ip);
 
