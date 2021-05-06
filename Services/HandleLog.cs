@@ -531,7 +531,7 @@ namespace WebApplication25.Services
                      names.Add(_tmp.Last()); 
                 }
             }
-            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is started");
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is stoped");
             return names;
         }
 
@@ -611,7 +611,7 @@ namespace WebApplication25.Services
                     names.Add(_tmp.Last()); 
                 }
             }
-            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is started");
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is stoped");
             return new  (names, done);
         }
 
