@@ -466,7 +466,7 @@ namespace WebApplication25.Services
             {
                 StringBuilder stringBuilder = new StringBuilder(url);
                 stringBuilder.Append(requests[i]);
-
+                Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class {i} element is  processing");
                 WebClient x = new WebClient();
                 x.Proxy = null;
                 string _s = string.Empty;
@@ -675,7 +675,7 @@ namespace WebApplication25.Services
             Logger.LogInformation($"{DateTime.Now.ToString()} GetCompaniesNames method HandleLog class is started");
             using var cl = new HttpClient();
             //token on ipinfo.io, monthly limit has already been used
-            var api = new IpInfoApi("530f45ab84efc1",cl);
+            var api = new IpInfoApi("e233289eabbf1b", cl);
           
             List<string> companies = new List<string>();
             for (int i = 0; i < ip.Count; i++)

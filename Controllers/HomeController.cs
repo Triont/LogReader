@@ -65,7 +65,7 @@ namespace WebApplication25.Controllers
                     await appDbContext.SaveChangesAsync();
 
                     //processing data by column
-                  await Task.Run(() => handleLog.GetData(filePath));
+                   Task.Run(() => handleLog.GetData(filePath));
 
 
                     //processing data by line
