@@ -37,12 +37,19 @@ namespace WebApplication25.Models
        // public virtual List<MainTable> Requests { get; set; } = new List<MainTable>();
 
     }
+    public class UploadedFilesInfo
+    {
+        public long Id { get; set; }
+        public string Path { get; set; }
+        public bool WasRead { get; set; }
+    }
 
     public class AppDbContext:DbContext
     {
         public DbSet<MainTable> MainTable { get; set; }
         public DbSet<IPinfo> IpInfo { get; set; }
         public DbSet<FilesInfo> FilesInfos { get; set; }
+        public DbSet<UploadedFilesInfo> UploadedFiles { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options)
               : base(options)

@@ -61,12 +61,13 @@ namespace WebApplication25.Controllers
                     FileStream fileStream = new FileStream(filePath, FileMode.Create);
                     uploadLogModelView.FormFile.CopyTo(fileStream);
                     fileStream.Close();
+                    await appDbContext.UploadedFiles.AddAsync(new UploadedFilesInfo() { Path = filePath, WasRead = false });
+                    await appDbContext.SaveChangesAsync();
+               //   await Task.Run(() => handleLog.GetData(filePath));
 
-                  await Task.Run(() => handleLog.GetData(filePath));
 
 
-
-                //  await handleLogParallel.GetData(filePath);
+               //   await handleLogParallel.GetData(filePath);
 
 
 
@@ -78,7 +79,7 @@ namespace WebApplication25.Controllers
         
         public async Task<IActionResult> MainTable(MainModelView mainModelView, string []filters)
         {
-           
+            _logger.LogInformation($"{DateTime.Now.ToString()} MainTable method HomeController class");
             
             if(mainModelView.Search!=null)
             {
@@ -162,6 +163,7 @@ namespace WebApplication25.Controllers
         }
         public async Task<IActionResult> IpTable(IpModelView ipModelView, string []filters)
         {
+            _logger.LogInformation($"{DateTime.Now.ToString()} IpTable method HomeController class");
             var m = await appDbContext.IpInfo.ToListAsync();
             var categories = m.Select(i => i.CompanyName).Distinct().ToList();
 
@@ -237,7 +239,7 @@ namespace WebApplication25.Controllers
         }
         public async Task<IActionResult> FilesTable( FilesModelView filesModelView, string [] filters)
         {
-        
+            _logger.LogInformation($"{DateTime.Now.ToString()} FilesTable method HomeController class");
 
 
             if (filesModelView._search != null)

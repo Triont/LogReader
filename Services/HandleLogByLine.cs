@@ -311,14 +311,7 @@ namespace WebApplication25.Services
                     }
                 }
             });
-            //for (int i = 0; i < lines.Count; i++)
-            //{
-            //    var m = regex.Match(lines[i]);
-            //    if (m.Success)
-            //    {
-            //        tmp.Add(m.Value);
-            //    }
-            //}
+   
             return tmp;
 
         }
