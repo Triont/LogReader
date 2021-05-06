@@ -78,11 +78,11 @@ namespace WebApplication25.Controllers
             return RedirectToAction("Index");
         }
 
-        
+        //method for show maintable and get data based on search and filters info
         public async Task<IActionResult> MainTable(MainModelView mainModelView, string []filters)
         {
             _logger.LogInformation($"{DateTime.Now.ToString()} MainTable method HomeController class");
-            
+            //do search
             if(mainModelView.Search!=null)
             {
                 long id;
@@ -118,7 +118,7 @@ namespace WebApplication25.Controllers
                 }
 
             }
-
+            //do filter
             if(filters!=null)
             {
                 List<MainTable> infos = new List<MainTable>();
@@ -163,6 +163,7 @@ namespace WebApplication25.Controllers
                 return View(mainModelView145);
             
         }
+        //method for show iptable and get data based on search and filters info
         public async Task<IActionResult> IpTable(IpModelView ipModelView, string []filters)
         {
             _logger.LogInformation($"{DateTime.Now.ToString()} IpTable method HomeController class");
@@ -172,7 +173,7 @@ namespace WebApplication25.Controllers
 
          
 
-
+            //do search
 
             if (ipModelView._search != null)
             {
@@ -201,11 +202,12 @@ namespace WebApplication25.Controllers
                 }
 
             }
+            //do filter
             if(filters!=null)
             {
                 List<IPinfo> infos = new List<IPinfo>();
                 List<string> _c = new List<string>();
-              //  var r = await appDbContext.IpInfo.ToListAsync();
+            
 
                
                     for (int i = 0; i < filters.Length; i++)
@@ -216,8 +218,7 @@ namespace WebApplication25.Controllers
 
                     infos.AddRange(r);
                    
-                 //   var rr = await appDbContext.IpInfo.Select(tt => tt._IPinfo).Where(q => q.CompanyName.Contains(filters[i])).ToListAsync();
-                    //infos.AddRange(r);
+         
 
                     _c.Add(filters[i]);
                     }
@@ -239,11 +240,12 @@ namespace WebApplication25.Controllers
             var _m = new IpModelView() { IpData = m, Filters=categories };
             return View(_m);
         }
+        //method for show filestable and get data based on search and filters info
         public async Task<IActionResult> FilesTable( FilesModelView filesModelView, string [] filters)
         {
             _logger.LogInformation($"{DateTime.Now.ToString()} FilesTable method HomeController class");
 
-
+            //do search
             if (filesModelView._search != null)
             {
                 long id;
@@ -277,7 +279,7 @@ namespace WebApplication25.Controllers
                 }
 
             }
-
+            //do filter
             if(filters!=null)
             {
                 List<FilesInfo> infos = new List<FilesInfo>();
