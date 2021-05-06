@@ -310,6 +310,26 @@ namespace WebApplication25.Controllers
         }
 
 
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private string GetUniqueFileName(string fileName)
+        {
+            fileName = Path.GetFileName(fileName);
+            return Path.GetFileNameWithoutExtension(fileName)
+                      + "_"
+                      + Guid.NewGuid().ToString().Substring(0, 10)
+                      + Path.GetExtension(fileName);
+        }
+
+
+
+
+
+        #region old code
         public async Task<IActionResult> SearchInMain(MainModelView mainModelView)
         {
             if(mainModelView.Search!=null)
@@ -445,21 +465,6 @@ namespace WebApplication25.Controllers
         
 
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        private string GetUniqueFileName(string fileName)
-        {
-            fileName = Path.GetFileName(fileName);
-            return Path.GetFileNameWithoutExtension(fileName)
-                      + "_"
-                      + Guid.NewGuid().ToString().Substring(0, 10)
-                      + Path.GetExtension(fileName);
-        }
-
 
         public async Task<IActionResult> GetFilterdedIpData(string[] filters)
         {
@@ -552,5 +557,6 @@ i._IPinfo.CompanyName).Distinct().ToListAsync(),
 
 
         }
+        #endregion
     }
 }
