@@ -39,6 +39,7 @@ namespace WebApplication25
             services.AddMemoryCache();
             services.AddSession();
             services.AddSingleton<IHostedService, HostService>();
+            services.AddHostedService<HostedBackground>();
 
             services.AddDbContext<AppDbContext>(options =>options.UseLazyLoadingProxies().
       UseSqlServer(Configuration.GetConnectionString("Default")));

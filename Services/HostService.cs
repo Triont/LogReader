@@ -67,4 +67,39 @@ namespace WebApplication25.Services
             return Task.CompletedTask;
         }
     }
+
+    public class HostedBackground : BackgroundService
+    {
+        private readonly IServiceScopeFactory serviceScope;
+        public HostedBackground(IServiceScopeFactory scopeFactory) 
+        {
+            this.serviceScope = scopeFactory;
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                using (var scope = serviceScope.CreateScope())
+                {
+
+                     Task.Run(async () =>
+                    {
+                        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                        var handler = scope.ServiceProvider.GetRequiredService<HandleLog>();
+                        var lst = await db.UploadedFiles.Where(u => u.WasRead != true).ToListAsync();
+                        foreach (var r in lst)
+                        {
+                            await handler.GetData(r.Path);
+                            r.WasRead = true;
+                            db.UploadedFiles.Update(r);
+                        }
+                        await db.SaveChangesAsync();
+                    }).Wait();
+                   await Task.Delay(5, stoppingToken);
+                }
+            }
+        }
+    }
 }
