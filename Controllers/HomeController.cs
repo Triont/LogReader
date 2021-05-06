@@ -63,10 +63,12 @@ namespace WebApplication25.Controllers
                     fileStream.Close();
                     await appDbContext.UploadedFiles.AddAsync(new UploadedFilesInfo() { Path = filePath, WasRead = false });
                     await appDbContext.SaveChangesAsync();
-               //   await Task.Run(() => handleLog.GetData(filePath));
+
+                    //processing data by column
+                  await Task.Run(() => handleLog.GetData(filePath));
 
 
-
+                    //processing data by line
                //   await handleLogParallel.GetData(filePath);
 
 

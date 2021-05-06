@@ -38,6 +38,7 @@ namespace WebApplication25
             services.AddScoped<HandleLogByLine>();
             services.AddMemoryCache();
             services.AddSession();
+            //Hosted services, for use  need comment data processing call in HomeController 
           //  services.AddSingleton<IHostedService, HostService>();
             //services.AddHostedService<HostedBackground>();
 
