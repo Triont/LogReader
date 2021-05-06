@@ -687,7 +687,7 @@ namespace WebApplication25.Services
             using var cl = new HttpClient(httpClientHandler);
 
             //530f45ab84efc1 is my token on ipinfo.io, monthly limit has already been used
-            var api = new IpInfoApi("530f45ab84efc1", cl);
+            var api = new IpInfoApi("e233289eabbf1b", cl);
 
             var r = await api.GetOrganizationByIpAsync(_ip);
 
