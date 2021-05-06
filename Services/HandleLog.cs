@@ -297,7 +297,7 @@ namespace WebApplication25.Services
                 await appDbContext.SaveChangesAsync();
             }
                 await appDbContext.SaveChangesAsync();
-              
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetData method HandleLog class is stoped");
             return await Task.Run(() => false);
         }
 
@@ -347,7 +347,7 @@ namespace WebApplication25.Services
 
 
             }
-
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetAllIp method HandleLog class is stoped");
             return await Task.Run(() => vs);
 
 
@@ -390,7 +390,7 @@ namespace WebApplication25.Services
                     }
                 }
             });
-         
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetDateTimesString method HandleLog class is stoped");
             return tmp;
 
         }
@@ -454,7 +454,7 @@ namespace WebApplication25.Services
 
                 }
             });
-           
+            Logger.LogInformation($"{DateTime.Now.ToString()} _GetDateTimes method HandleLog class is stoped");
             return dateTimes;
         }
 
@@ -531,6 +531,7 @@ namespace WebApplication25.Services
                      names.Add(_tmp.Last()); 
                 }
             }
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is started");
             return names;
         }
 
@@ -610,6 +611,7 @@ namespace WebApplication25.Services
                     names.Add(_tmp.Last()); 
                 }
             }
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is started");
             return new  (names, done);
         }
 
@@ -627,6 +629,7 @@ namespace WebApplication25.Services
                 Type.Add(request);
                 url.Add(tmp[1]);
             }
+            Logger.LogInformation($"{DateTime.Now.ToString()} ParseRequest method HandleLog class is stoped");
 
         }
         public void GetResultAndDataVolume(List<string> str, out List<int> results, out List<long> volume)
@@ -662,7 +665,7 @@ namespace WebApplication25.Services
 
 
             }
-
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetResultAndDataVolume method HandleLog class is stoped");
 
         }
 
@@ -696,6 +699,7 @@ namespace WebApplication25.Services
                     companies.Add(_dbdata.CompanyName);
                 }
             }
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetCompaniesName method HandleLog class is stoped");
             return companies;
         }
 
@@ -717,7 +721,7 @@ namespace WebApplication25.Services
                     }
                 }
             });
-          
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetRequests method HandleLog class is stoped");
             return vs;
         }
 

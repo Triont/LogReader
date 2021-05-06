@@ -61,12 +61,13 @@ namespace WebApplication25.Controllers
                     FileStream fileStream = new FileStream(filePath, FileMode.Create);
                     uploadLogModelView.FormFile.CopyTo(fileStream);
                     fileStream.Close();
-
+                    await appDbContext.UploadedFiles.AddAsync(new UploadedFilesInfo() { Path = filePath, WasRead = false });
+                    await appDbContext.SaveChangesAsync();
                //   await Task.Run(() => handleLog.GetData(filePath));
 
 
 
-                  await handleLogParallel.GetData(filePath);
+               //   await handleLogParallel.GetData(filePath);
 
 
 
