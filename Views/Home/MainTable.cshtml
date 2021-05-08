@@ -72,13 +72,13 @@
                   </td>
                
                   <td class ="Path">
-                      @i.FilesInfo.Path
+                      @i.FilesInfo?.Path
                   </td>
                   <td>
                       @Encoding.ASCII.GetString(i._IPinfo.IPAddress)
                   </td>
                   <td>
-                      @i._IPinfo.CompanyName
+                      @i._IPinfo?.CompanyName ?? @string.Empty
                   </td>
                   <td>
                       @i.DataVolume

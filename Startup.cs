@@ -38,9 +38,15 @@ namespace WebApplication25
             services.AddScoped<HandleLogByLine>();
             services.AddMemoryCache();
             services.AddSession();
+
             //Hosted services, for use  need comment data processing call in HomeController 
           //  services.AddSingleton<IHostedService, HostService>();
-            //services.AddHostedService<HostedBackground>();
+
+            //Using hosted service
+         //   services.AddSingleton<IHostedService, HostService>();
+            //or
+           // services.AddHostedService<HostedBackground>();
+
 
             services.AddDbContext<AppDbContext>(options =>options.UseLazyLoadingProxies().
       UseSqlServer(Configuration.GetConnectionString("Default")));
