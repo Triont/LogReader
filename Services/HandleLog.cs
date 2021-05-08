@@ -49,7 +49,7 @@ namespace WebApplication25.Services
                         || lines[i].Contains("/js/") || lines[i].Contains("assets")
                         || lines[i].Contains("png") || lines[i].Contains("jpg")
                         || lines[i].Contains("php") || lines[i].Contains("/administrator/")
-                        || lines[i].Contains("ico") //||lines[i].Contains("=opensearch")
+                        || lines[i].Contains("ico") ||lines[i].Contains("=opensearch")
 
                         ))
                     // if (lines[i].Contains("search"))
@@ -101,7 +101,7 @@ namespace WebApplication25.Services
 
                 for (int _i = 0; _i < allowed.Count; _i++)
                 {
-                    Logger.LogInformation($"Start loop for save data");
+                    Logger.LogInformation($"{_i} iteration of  data save loop started");
                     var _m_count = appDbContext.MainTable.Count();
                     MainTable _main = new MainTable();
                     if (_m_count != 0)
