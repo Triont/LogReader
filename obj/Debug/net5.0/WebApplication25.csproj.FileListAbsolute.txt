@@ -79,3 +79,9 @@ C:\Users\user\source\repos\WebApplication25\WebApplication25\obj\Debug\net5.0\Ra
 C:\Users\user\source\repos\WebApplication25\WebApplication25\obj\Debug\net5.0\Razor\Views\Home\IpTable.cshtml.g.cs
 C:\Users\user\source\repos\WebApplication25\WebApplication25\bin\Debug\net5.0\Castle.Core.dll
 C:\Users\user\source\repos\WebApplication25\WebApplication25\bin\Debug\net5.0\Microsoft.EntityFrameworkCore.Proxies.dll
+C:\Users\user\source\repos\WebApplication25\WebApplication25\bin\Debug\net5.0\Abot2.dll
+C:\Users\user\source\repos\WebApplication25\WebApplication25\bin\Debug\net5.0\AngleSharp.dll
+C:\Users\user\source\repos\WebApplication25\WebApplication25\bin\Debug\net5.0\NRobotsCore.dll
+C:\Users\user\source\repos\WebApplication25\WebApplication25\bin\Debug\net5.0\Serilog.dll
+C:\Users\user\source\repos\WebApplication25\WebApplication25\bin\Debug\net5.0\Serilog.Enrichers.Thread.dll
+C:\Users\user\source\repos\WebApplication25\WebApplication25\bin\Debug\net5.0\Serilog.Sinks.Console.dll

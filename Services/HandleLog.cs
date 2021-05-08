@@ -12,6 +12,13 @@ using System.Net.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
+using Abot2.Core;
+using Abot2.Crawler;
+using Abot2.Poco;
+using Serilog;
+using System.Collections.Concurrent;
+using System.Threading;
+
 namespace WebApplication25.Services
 {
 
@@ -71,9 +78,9 @@ namespace WebApplication25.Services
                 GetResultAndDataVolume(allowed, out _result, out _dataVolume);
 
 
-                var Names = await GetNames(urls, new Dictionary<string, string>(), _result);
+                var Names = await GetNames(urls, new ConcurrentDictionary<string, string>(), _result);
 
-                List<string> CompaniesName = await GetCompaniesName(ip_addresses);
+               var CompaniesName = await GetCompaniesName(ip_addresses);
 
 
 
@@ -102,40 +109,156 @@ namespace WebApplication25.Services
                         var _ip = await appDbContext.IpInfo.FirstOrDefaultAsync(i => i.IPAddress == byte_arr_ipaddr[_i]);
                         var _file = await appDbContext.FilesInfos.FirstOrDefaultAsync(i => i.Path == urls[_i]);
 
-                       //if db not contains ip and file path
+                        //if db not contains ip and file path
                         if (_file == null && _ip == null)
                         {
-                            if (Names[_i] != string.Empty)
+                            if (Names.ContainsKey(urls[_i]) && urls[_i] != string.Empty)
                             {
-                                await appDbContext.MainTable.AddAsync(new MainTable()
+
+
+                                if (CompaniesName.ContainsKey(ip_addresses[_i]) && ip_addresses[_i] != string.Empty)
                                 {
-                                    DateTime = datetimes_list[_i],
-                                    DataVolume = _dataVolume[_i],
-                                    RequestResult = _result[_i],
-                                    RequestType = request_types[_i],
-                                    DateTimeLog = data_time_logged[_i],
-
-                                    _IPinfo =
-
-                              new IPinfo()
-                              {
-                                  IPAddress = byte_arr_ipaddr[_i],
-                              // CompanyName = qqq.Result[_i]
-                              CompanyName = CompaniesName[_i]
-                              },
 
 
-                                    FilesInfo = new FilesInfo()
+
+
+                                    await appDbContext.MainTable.AddAsync(new MainTable()
                                     {
+                                        DateTime = datetimes_list[_i],
                                         DataVolume = _dataVolume[_i],
-                                        Name = Names[_i],
-                                        Path = urls[_i]
+                                        RequestResult = _result[_i],
+                                        RequestType = request_types[_i],
+                                        DateTimeLog = data_time_logged[_i],
+
+                                        _IPinfo =
+
+                                  new IPinfo()
+                                  {
+                                      IPAddress = byte_arr_ipaddr[_i],
+                                      // CompanyName = qqq.Result[_i]
+                                      CompanyName = CompaniesName[ip_addresses[_i]]
+                                  },
+
+
+                                        FilesInfo = new FilesInfo()
+                                        {
+                                            DataVolume = _dataVolume[_i],
+                                            Name = Names[urls[_i]],
+                                            Path = urls[_i]
+                                        }
+
+
                                     }
 
+                                  );
+                                }
+                                else
+                                {
 
+                                    await appDbContext.MainTable.AddAsync(new MainTable()
+                                    {
+                                        DateTime = datetimes_list[_i],
+                                        DataVolume = _dataVolume[_i],
+                                        RequestResult = _result[_i],
+                                        RequestType = request_types[_i],
+                                        DateTimeLog = data_time_logged[_i],
+
+                             //           _IPinfo =
+
+                             //new IPinfo()
+                             //{
+                             //    IPAddress = byte_arr_ipaddr[_i],
+                             //         // CompanyName = qqq.Result[_i]
+                             //         CompanyName = CompaniesName[ip_addresses[_i]]
+                             //},
+
+
+                                        FilesInfo = new FilesInfo()
+                                        {
+                                            DataVolume = _dataVolume[_i],
+                                            Name = Names[urls[_i]],
+                                            Path = urls[_i]
+                                        }
+
+
+                                    }
+
+                             );
                                 }
 
-                              );
+                                
+                            }
+
+
+
+                            else
+                            {
+
+                                if (CompaniesName.ContainsKey(ip_addresses[_i]) && ip_addresses[_i] != string.Empty)
+                                {
+
+
+                                    await appDbContext.MainTable.AddAsync(new MainTable()
+                                    {
+                                        DateTime = datetimes_list[_i],
+                                        DataVolume = _dataVolume[_i],
+                                        RequestResult = _result[_i],
+                                        RequestType = request_types[_i],
+                                        DateTimeLog = data_time_logged[_i],
+
+                                        _IPinfo =
+
+                                  new IPinfo()
+                                  {
+                                      IPAddress = byte_arr_ipaddr[_i],
+                                  // CompanyName = qqq.Result[_i]
+                                  CompanyName = CompaniesName[ip_addresses[_i]]
+                                  },
+
+
+                                        //FilesInfo = new FilesInfo()
+                                        //{
+                                        //    DataVolume = _dataVolume[_i],
+                                        //    Name = Names[urls[_i]],
+                                        //    Path = urls[_i]
+                                        //}
+
+
+                                    });
+                                }
+
+                                else
+                                {
+
+                                    await appDbContext.MainTable.AddAsync(new MainTable()
+                                    {
+                                        DateTime = datetimes_list[_i],
+                                        DataVolume = _dataVolume[_i],
+                                        RequestResult = _result[_i],
+                                        RequestType = request_types[_i],
+                                        DateTimeLog = data_time_logged[_i],
+
+                                //        _IPinfo =
+
+                                //new IPinfo()
+                                //{
+                                //    IPAddress = byte_arr_ipaddr[_i],
+                                //      // CompanyName = qqq.Result[_i]
+                                //      CompanyName = CompaniesName[ip_addresses[_i]]
+                                //},
+
+
+                                        //FilesInfo = new FilesInfo()
+                                        //{
+                                        //    DataVolume = _dataVolume[_i],
+                                        //    Name = Names[urls[_i]],
+                                        //    Path = urls[_i]
+                                        //}
+
+
+                                    });
+                                }
+
 
                             }
                         }
@@ -143,80 +266,143 @@ namespace WebApplication25.Services
 
                         else if (_file != null && _ip == null)
                         {
-                            if (Names[_i] != string.Empty)
+                            if (Names.ContainsKey(urls[_i]) && urls[_i]!=string.Empty)
                             {
-                                await appDbContext.MainTable.AddAsync(new MainTable()
+                                if (CompaniesName.ContainsKey(ip_addresses[_i])&& ip_addresses[_i]!=string.Empty)
                                 {
-                                    DateTime = datetimes_list[_i],
-                                    DataVolume = _dataVolume[_i],
-                                    RequestResult = _result[_i],
-                                    RequestType = request_types[_i],
-                                    DateTimeLog = data_time_logged[_i],
-
-                                    _IPinfo =
-
-                           new IPinfo()
-                           {
-                               IPAddress = byte_arr_ipaddr[_i],
-                               CompanyName = CompaniesName[_i]
-                           },
-
-
-                                    FilesInfo = _file ?? new FilesInfo()
+                                    await appDbContext.MainTable.AddAsync(new MainTable()
                                     {
+                                        DateTime = datetimes_list[_i],
                                         DataVolume = _dataVolume[_i],
-                                        Name = Names[_i],
-                                        Path = urls[_i]
+                                        RequestResult = _result[_i],
+                                        RequestType = request_types[_i],
+                                        DateTimeLog = data_time_logged[_i],
+
+                                        _IPinfo =
+
+                               new IPinfo()
+                               {
+                                   IPAddress = byte_arr_ipaddr[_i],
+                                   CompanyName = CompaniesName[ip_addresses[_i]]
+                               },
+
+
+                                        FilesInfo = _file ?? new FilesInfo()
+                                        {
+                                            DataVolume = _dataVolume[_i],
+                                            Name = Names[urls[_i]],
+                                            Path = urls[_i]
+                                        }
+
+
                                     }
-
-
+                               );
                                 }
-                           );
+
+                                else
+                                {
+                                    await appDbContext.MainTable.AddAsync(new MainTable()
+                                    {
+                                        DateTime = datetimes_list[_i],
+                                        DataVolume = _dataVolume[_i],
+                                        RequestResult = _result[_i],
+                                        RequestType = request_types[_i],
+                                        DateTimeLog = data_time_logged[_i],
+
+                              //          _IPinfo =
+
+                              //new IPinfo()
+                              //{
+                              //    IPAddress = byte_arr_ipaddr[_i],
+                              //    CompanyName = CompaniesName[ip_addresses[_i]]
+                              //},
+
+
+                                        FilesInfo = _file ?? new FilesInfo()
+                                        {
+                                            DataVolume = _dataVolume[_i],
+                                            Name = Names[urls[_i]],
+                                            Path = urls[_i]
+                                        }
+
+
+                                    }
+                              );
+                                }
+                            }
+
+                            else
+                            {
+                                if (CompaniesName.ContainsKey(ip_addresses[_i]) && ip_addresses[_i] != string.Empty)
+                                {
+                                    await appDbContext.MainTable.AddAsync(new MainTable()
+                                    {
+                                        DateTime = datetimes_list[_i],
+                                        DataVolume = _dataVolume[_i],
+                                        RequestResult = _result[_i],
+                                        RequestType = request_types[_i],
+                                        DateTimeLog = data_time_logged[_i],
+
+                                        _IPinfo =
+
+                               new IPinfo()
+                               {
+                                   IPAddress = byte_arr_ipaddr[_i],
+                                   CompanyName = CompaniesName[ip_addresses[_i]]
+                               },
+
+
+                                        //FilesInfo = _file ?? new FilesInfo()
+                                        //{
+                                        //    DataVolume = _dataVolume[_i],
+                                        //    Name = Names[urls[_i]],
+                                        //    Path = urls[_i]
+                                        //}
+
+
+                                    }
+                               );
+                                }
+
+                                else
+                                {
+                                    await appDbContext.MainTable.AddAsync(new MainTable()
+                                    {
+                                        DateTime = datetimes_list[_i],
+                                        DataVolume = _dataVolume[_i],
+                                        RequestResult = _result[_i],
+                                        RequestType = request_types[_i],
+                                        DateTimeLog = data_time_logged[_i],
+
+                                        //          _IPinfo =
+
+                                        //new IPinfo()
+                                        //{
+                                        //    IPAddress = byte_arr_ipaddr[_i],
+                                        //    CompanyName = CompaniesName[ip_addresses[_i]]
+                                        //},
+
+
+                                        //FilesInfo = _file ?? new FilesInfo()
+                                        //{
+                                        //    DataVolume = _dataVolume[_i],
+                                        //    Name = Names[urls[_i]],
+                                        //    Path = urls[_i]
+                                        //}
+
+
+                                    }
+                              );
+                                }
+
                             }
 
                         }
                         else if (_file == null && _ip != null)
                         {
-                            if (Names[_i] != string.Empty)
+                            if (Names.ContainsKey(urls[_i]) && urls[_i]!=string.Empty)
                             {
-                                await appDbContext.MainTable.AddAsync(new MainTable()
-                                {
-                                    DateTime = datetimes_list[_i],
-                                    DataVolume = _dataVolume[_i],
-                                    RequestResult = _result[_i],
-                                    RequestType = request_types[_i],
-                                    DateTimeLog = data_time_logged[_i],
-
-                                    _IPinfo = _ip ??
-
-                          new IPinfo()
-                          {
-                              IPAddress = byte_arr_ipaddr[_i],
-                              CompanyName = CompaniesName[_i]
-                          },
-
-
-                                    FilesInfo = new FilesInfo()
-                                    {
-                                        DataVolume = _dataVolume[_i],
-                                        Name = Names[_i],
-                                        Path = urls[_i]
-                                    }
-
-
-                                }
-                          );
-                            }
-                        }
-                        else if (_file != null && _ip != null)
-                        {
-                            if (Names[_i] != string.Empty)
-                            {
-                                if (!appDbContext.MainTable.Any(i => ((i.DataVolume == _dataVolume[_i])
-                               && (i.DateTime == datetimes_list[_i]) && (i.DateTimeLog == data_time_logged[_i])
-                               && (i.RequestResult == _result[_i]) && (i.RequestType == request_types[_i])
-                               && (i._IPinfo.Id == _ip.Id)) && (i.FilesInfo.Id == _file.Id)
-                           ))
+                                if (CompaniesName.ContainsKey(ip_addresses[_i]) && ip_addresses[_i]!=string.Empty)
                                 {
                                     await appDbContext.MainTable.AddAsync(new MainTable()
                                     {
@@ -228,24 +414,282 @@ namespace WebApplication25.Services
 
                                         _IPinfo = _ip ??
 
-                                           new IPinfo()
-                                           {
-                                               IPAddress = byte_arr_ipaddr[_i],
-                                               CompanyName = CompaniesName[_i]
-                                           },
+                              new IPinfo()
+                              {
+                                  IPAddress = byte_arr_ipaddr[_i],
+                                  CompanyName = CompaniesName[ip_addresses[_i]]
+                              },
 
 
-                                        FilesInfo = _file ?? new FilesInfo()
+                                        FilesInfo = new FilesInfo()
                                         {
                                             DataVolume = _dataVolume[_i],
-                                            Name = Names[_i],
+                                            Name = Names[urls[_i]],
                                             Path = urls[_i]
                                         }
 
 
                                     }
-                                           );
+                              );
                                 }
+                                else
+                                {
+                                    await appDbContext.MainTable.AddAsync(new MainTable()
+                                    {
+                                        DateTime = datetimes_list[_i],
+                                        DataVolume = _dataVolume[_i],
+                                        RequestResult = _result[_i],
+                                        RequestType = request_types[_i],
+                                        DateTimeLog = data_time_logged[_i],
+
+                              //          _IPinfo = _ip ??
+
+                              //new IPinfo()
+                              //{
+                              //    IPAddress = byte_arr_ipaddr[_i],
+                              //    CompanyName = CompaniesName[ip_addresses[_i]]
+                              //},
+
+
+                                        FilesInfo = new FilesInfo()
+                                        {
+                                            DataVolume = _dataVolume[_i],
+                                            Name = Names[urls[_i]],
+                                            Path = urls[_i]
+                                        }
+
+
+                                    }
+                              );
+                                }
+                            }
+
+                            else
+                            {
+                                if (CompaniesName.ContainsKey(ip_addresses[_i]) && ip_addresses[_i] != string.Empty)
+                                {
+                                    await appDbContext.MainTable.AddAsync(new MainTable()
+                                    {
+                                        DateTime = datetimes_list[_i],
+                                        DataVolume = _dataVolume[_i],
+                                        RequestResult = _result[_i],
+                                        RequestType = request_types[_i],
+                                        DateTimeLog = data_time_logged[_i],
+
+                                        _IPinfo = _ip ??
+
+                              new IPinfo()
+                              {
+                                  IPAddress = byte_arr_ipaddr[_i],
+                                  CompanyName = CompaniesName[ip_addresses[_i]]
+                              },
+
+
+                                        //FilesInfo = new FilesInfo()
+                                        //{
+                                        //    DataVolume = _dataVolume[_i],
+                                        //    Name = Names[urls[_i]],
+                                        //    Path = urls[_i]
+                                        //}
+
+
+                                    }
+                              );
+                                }
+                                else
+                                {
+                                    await appDbContext.MainTable.AddAsync(new MainTable()
+                                    {
+                                        DateTime = datetimes_list[_i],
+                                        DataVolume = _dataVolume[_i],
+                                        RequestResult = _result[_i],
+                                        RequestType = request_types[_i],
+                                        DateTimeLog = data_time_logged[_i],
+
+                                        //          _IPinfo = _ip ??
+
+                                        //new IPinfo()
+                                        //{
+                                        //    IPAddress = byte_arr_ipaddr[_i],
+                                        //    CompanyName = CompaniesName[ip_addresses[_i]]
+                                        //},
+
+
+                                        //FilesInfo = new FilesInfo()
+                                        //{
+                                        //    DataVolume = _dataVolume[_i],
+                                        //    Name = Names[urls[_i]],
+                                        //    Path = urls[_i]
+                                        //}
+
+
+                                    }
+                              );
+                                }
+
+                            }
+                        }
+                        else if (_file != null && _ip != null)
+                        {
+                            if (Names.ContainsKey(urls[_i]) && urls[_i]!=string.Empty)
+                            {
+                                if (CompaniesName.ContainsKey(ip_addresses[_i])&& ip_addresses[_i]!=string.Empty )
+                                {
+                                    if (!appDbContext.MainTable.Any(i => ((i.DataVolume == _dataVolume[_i])
+                                   && (i.DateTime == datetimes_list[_i]) && (i.DateTimeLog == data_time_logged[_i])
+                                   && (i.RequestResult == _result[_i]) && (i.RequestType == request_types[_i])
+                                   && (i._IPinfo.Id == _ip.Id)) && (i.FilesInfo.Id == _file.Id)
+                               ))
+                                    {
+                                        await appDbContext.MainTable.AddAsync(new MainTable()
+                                        {
+                                            DateTime = datetimes_list[_i],
+                                            DataVolume = _dataVolume[_i],
+                                            RequestResult = _result[_i],
+                                            RequestType = request_types[_i],
+                                            DateTimeLog = data_time_logged[_i],
+
+                                            _IPinfo = _ip ??
+
+                                               new IPinfo()
+                                               {
+                                                   IPAddress = byte_arr_ipaddr[_i],
+                                                   CompanyName = CompaniesName[ip_addresses[_i]]
+                                               },
+
+
+                                            FilesInfo = _file ?? new FilesInfo()
+                                            {
+                                                DataVolume = _dataVolume[_i],
+                                                Name = Names[urls[_i]],
+                                                Path = urls[_i]
+                                            }
+
+
+                                        }
+                                               );
+                                    }
+                                }
+
+                                else
+                                {
+                                    if (!appDbContext.MainTable.Any(i => ((i.DataVolume == _dataVolume[_i])
+                                && (i.DateTime == datetimes_list[_i]) && (i.DateTimeLog == data_time_logged[_i])
+                                && (i.RequestResult == _result[_i]) && (i.RequestType == request_types[_i])
+                                && (i._IPinfo.Id == _ip.Id)) && (i.FilesInfo.Id == _file.Id)
+                            ))
+                                    {
+                                        await appDbContext.MainTable.AddAsync(new MainTable()
+                                        {
+                                            DateTime = datetimes_list[_i],
+                                            DataVolume = _dataVolume[_i],
+                                            RequestResult = _result[_i],
+                                            RequestType = request_types[_i],
+                                            DateTimeLog = data_time_logged[_i],
+
+                                            //_IPinfo = _ip ??
+
+                                            //   new IPinfo()
+                                            //   {
+                                            //       IPAddress = byte_arr_ipaddr[_i],
+                                            //       CompanyName = CompaniesName[ip_addresses[_i]]
+                                            //   },
+
+
+                                            FilesInfo = _file ?? new FilesInfo()
+                                            {
+                                                DataVolume = _dataVolume[_i],
+                                                Name = Names[urls[_i]],
+                                                Path = urls[_i]
+                                            }
+
+
+                                        }
+                                               );
+                                    }
+                                }
+                            }
+
+                            else
+                            {
+
+
+                                if (CompaniesName.ContainsKey(ip_addresses[_i]) && ip_addresses[_i] != string.Empty)
+                                {
+                                    if (!appDbContext.MainTable.Any(i => ((i.DataVolume == _dataVolume[_i])
+                                   && (i.DateTime == datetimes_list[_i]) && (i.DateTimeLog == data_time_logged[_i])
+                                   && (i.RequestResult == _result[_i]) && (i.RequestType == request_types[_i])
+                                   && (i._IPinfo.Id == _ip.Id)) && (i.FilesInfo.Id == _file.Id)
+                               ))
+                                    {
+                                        await appDbContext.MainTable.AddAsync(new MainTable()
+                                        {
+                                            DateTime = datetimes_list[_i],
+                                            DataVolume = _dataVolume[_i],
+                                            RequestResult = _result[_i],
+                                            RequestType = request_types[_i],
+                                            DateTimeLog = data_time_logged[_i],
+
+                                            _IPinfo = _ip ??
+
+                                               new IPinfo()
+                                               {
+                                                   IPAddress = byte_arr_ipaddr[_i],
+                                                   CompanyName = CompaniesName[ip_addresses[_i]]
+                                               },
+
+
+                                            //FilesInfo = _file ?? new FilesInfo()
+                                            //{
+                                            //    DataVolume = _dataVolume[_i],
+                                            //    Name = Names[urls[_i]],
+                                            //    Path = urls[_i]
+                                            //}
+
+
+                                        }
+                                               );
+                                    }
+                                }
+
+                                else
+                                {
+                                    if (!appDbContext.MainTable.Any(i => ((i.DataVolume == _dataVolume[_i])
+                                && (i.DateTime == datetimes_list[_i]) && (i.DateTimeLog == data_time_logged[_i])
+                                && (i.RequestResult == _result[_i]) && (i.RequestType == request_types[_i])
+                                && (i._IPinfo.Id == _ip.Id)) && (i.FilesInfo.Id == _file.Id)
+                            ))
+                                    {
+                                        await appDbContext.MainTable.AddAsync(new MainTable()
+                                        {
+                                            DateTime = datetimes_list[_i],
+                                            DataVolume = _dataVolume[_i],
+                                            RequestResult = _result[_i],
+                                            RequestType = request_types[_i],
+                                            DateTimeLog = data_time_logged[_i],
+
+                                            //_IPinfo = _ip ??
+
+                                            //   new IPinfo()
+                                            //   {
+                                            //       IPAddress = byte_arr_ipaddr[_i],
+                                            //       CompanyName = CompaniesName[ip_addresses[_i]]
+                                            //   },
+
+
+                                            //FilesInfo = _file ?? new FilesInfo()
+                                            //{
+                                            //    DataVolume = _dataVolume[_i],
+                                            //    Name = Names[urls[_i]],
+                                            //    Path = urls[_i]
+                                            //}
+
+
+                                        }
+                                               );
+                                    }
+                                }
+
                             }
                           
                         }
@@ -253,37 +697,137 @@ namespace WebApplication25.Services
                     }
                     else
                     {
-                        if (Names[_i] != string.Empty)
+                        if (Names.ContainsKey(urls[_i]) && urls[_i]!=string.Empty)
                         {
-
-
-                            await appDbContext.MainTable.AddAsync(new MainTable()
+                            if (CompaniesName.ContainsKey(ip_addresses[_i])&& ip_addresses[_i]!=string.Empty)
                             {
-                                DateTime = datetimes_list[_i],
-                                DataVolume = _dataVolume[_i],
-                                RequestResult = _result[_i],
-                                RequestType = request_types[_i],
-                                DateTimeLog = data_time_logged[_i],
-
-                                _IPinfo =
-
-                               new IPinfo()
-                               {
-                                   IPAddress = byte_arr_ipaddr[_i],
-                                   CompanyName = CompaniesName[_i]
-                               },
 
 
-                                FilesInfo = new FilesInfo()
+                                await appDbContext.MainTable.AddAsync(new MainTable()
                                 {
+                                    DateTime = datetimes_list[_i],
                                     DataVolume = _dataVolume[_i],
-                                    Name = Names[_i],
-                                    Path = urls[_i]
+                                    RequestResult = _result[_i],
+                                    RequestType = request_types[_i],
+                                    DateTimeLog = data_time_logged[_i],
+
+                                    _IPinfo =
+
+                                   new IPinfo()
+                                   {
+                                       IPAddress = byte_arr_ipaddr[_i],
+                                       CompanyName = CompaniesName[ip_addresses[_i]]
+                                   },
+
+
+                                    FilesInfo = new FilesInfo()
+                                    {
+                                        DataVolume = _dataVolume[_i],
+                                        Name = Names[urls[_i]],
+                                        Path = urls[_i]
+                                    }
+
+
                                 }
-
-
+                                   );
                             }
-                               );
+
+                            else
+                            {
+                                await appDbContext.MainTable.AddAsync(new MainTable()
+                                {
+                                    DateTime = datetimes_list[_i],
+                                    DataVolume = _dataVolume[_i],
+                                    RequestResult = _result[_i],
+                                    RequestType = request_types[_i],
+                                    DateTimeLog = data_time_logged[_i],
+
+                                //    _IPinfo =
+
+                                //new IPinfo()
+                                //{
+                                //    IPAddress = byte_arr_ipaddr[_i],
+                                //    CompanyName = CompaniesName[ip_addresses[_i]]
+                                //},
+
+
+                                    FilesInfo = new FilesInfo()
+                                    {
+                                        DataVolume = _dataVolume[_i],
+                                        Name = Names[urls[_i]],
+                                        Path = urls[_i]
+                                    }
+
+
+                                }
+                                );
+                            }
+                        }
+                        else
+                        {
+                            if (CompaniesName.ContainsKey(ip_addresses[_i]) && ip_addresses[_i] != string.Empty)
+                            {
+
+
+                                await appDbContext.MainTable.AddAsync(new MainTable()
+                                {
+                                    DateTime = datetimes_list[_i],
+                                    DataVolume = _dataVolume[_i],
+                                    RequestResult = _result[_i],
+                                    RequestType = request_types[_i],
+                                    DateTimeLog = data_time_logged[_i],
+
+                                    _IPinfo =
+
+                                   new IPinfo()
+                                   {
+                                       IPAddress = byte_arr_ipaddr[_i],
+                                       CompanyName = CompaniesName[ip_addresses[_i]]
+                                   },
+
+
+                                    //FilesInfo = new FilesInfo()
+                                    //{
+                                    //    DataVolume = _dataVolume[_i],
+                                    //    Name = Names[urls[_i]],
+                                    //    Path = urls[_i]
+                                    //}
+
+
+                                }
+                                   );
+                            }
+
+                            else
+                            {
+                                await appDbContext.MainTable.AddAsync(new MainTable()
+                                {
+                                    DateTime = datetimes_list[_i],
+                                    DataVolume = _dataVolume[_i],
+                                    RequestResult = _result[_i],
+                                    RequestType = request_types[_i],
+                                    DateTimeLog = data_time_logged[_i],
+
+                                    //    _IPinfo =
+
+                                    //new IPinfo()
+                                    //{
+                                    //    IPAddress = byte_arr_ipaddr[_i],
+                                    //    CompanyName = CompaniesName[ip_addresses[_i]]
+                                    //},
+
+
+                                    //FilesInfo = new FilesInfo()
+                                    //{
+                                    //    DataVolume = _dataVolume[_i],
+                                    //    Name = Names[urls[_i]],
+                                    //    Path = urls[_i]
+                                    //}
+
+
+                                }
+                                );
+                            }
                         }
 
 
@@ -457,82 +1001,504 @@ namespace WebApplication25.Services
             Logger.LogInformation($"{DateTime.Now.ToString()} _GetDateTimes method HandleLog class is stoped");
             return dateTimes;
         }
-
-        public async Task<List<string>> GetNames(List<string> requests, Dictionary<string, string> done, List<int> resutl_request, string url = "http://tariscope.com")
+     
+        public async Task<ConcurrentDictionary<string, string>> GetNames(List<string> requests, ConcurrentDictionary<string, string> done, List<int> resutl_request, string url = "http://tariscope.com")
         {
             Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is started");
             List<string> names = new List<string>();
-            for (int i = 0; i < requests.Count; i++)
+            //for (int i = 0; i < requests.Count; i++)
+            //{
+            //    StringBuilder stringBuilder = new StringBuilder(url);
+            //    stringBuilder.Append(requests[i]);
+
+            //    WebClient x = new WebClient();
+            //    x.Proxy = null;
+            //    string _s = string.Empty;
+            var crw = new PoliteWebCrawler();
+           // crw.PageCrawlCompleted += (q);
+
+            HttpClient httpClient = new HttpClient();
+            BlockingCollection<HttpClient> webClients = new BlockingCollection<HttpClient>() { new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), 
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(),new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(),new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(),new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(),new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(),new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(),new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(),new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(),new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient()
+
+            };
+            BlockingCollection<string> vs = new BlockingCollection<string>();
+            foreach(var s in requests)
             {
-                StringBuilder stringBuilder = new StringBuilder(url);
-                stringBuilder.Append(requests[i]);
+                vs.Add(s);
+            }
+           // while (vs.Count > 0)
+           // {
+           //     var wc = webClients.Take();
+           //     var r = vs.Take();
+           //     if (!done.ContainsKey(r))
+           //     {
 
-                WebClient x = new WebClient();
-                x.Proxy = null;
-                string _s = string.Empty;
-                using(MyClient myClient= new MyClient())
+                  
+           //         done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           //RegexOptions.IgnoreCase).Groups["Title"].Value );
+           //         webClients.Add(new HttpClient());
+           //        // w += (s, e) =>
+           //        //{
+           //        ////  done.Add(r, e.Result);
+           //        //webClients.Add(new WebClient());
+           //        //};
+           //     }
+           // }
+            List<Task> threads = new List<Task>() {
+                Task.Run(async() =>
                 {
-                    myClient.HeadOnly = true;
-                    if (!done.ContainsKey(requests[i]))
+                      while (vs.Count > 0)
                     {
-                        var db_data = await appDbContext.MainTable.FirstOrDefaultAsync(qq => qq.FilesInfo.Path == requests[i]);
-                        if (db_data == null)
-                        {
-                            try
-                            {
-                                if (resutl_request[i] == 200)
-                                {
-
-
-                                    _s = await x.DownloadStringTaskAsync(stringBuilder.ToString());
-                                }
-                                else
-                                {
-                                    _s = string.Empty;
-                                }
-                            }
-                            catch (WebException e)
-                            {
-                                Logger.LogError($"{e.Message}, {e.Response}");
-                            }
-                        }
-                        else
-                        {
-                            _s = db_data.FilesInfo.Name;
-                            done.Add(requests[i], _s);
-                        }
-                    }
-                    else
-                    {
-                        _s = done[requests[i]];
-                    }
-
-                }
-             
-                string _data = String.Empty;
-                x.DownloadDataCompleted += (sender, e) =>
+                            Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                        var wc = webClients.Take();
+                var r = vs.Take();
+                if (!done.ContainsKey(r))
                 {
-                    _data = Encoding.ASCII.GetString(e.Result);
+
+
+                    done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           RegexOptions.IgnoreCase).Groups["Title"].Value );
+                    webClients.Add(new HttpClient());
+                        // wc.DownloadStringCompleted+=(s, e)=>
+                    } }
+                }),
+               Task.Run(async() =>
+                {
+                        Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                      while (vs.Count > 0)
+                    { var wc = webClients.Take();
+                var r = vs.Take();
+                if (!done.ContainsKey(r))
+                {
+
+
+                    done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           RegexOptions.IgnoreCase).Groups["Title"].Value );
+                    webClients.Add(new HttpClient());
+                        // wc.DownloadStringCompleted+=(s, e)=>
+                    } }
+                        webClients.Add(new HttpClient());
+                }),
+              Task.Run(async () =>
+                {
+                        Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+
+                   while (vs.Count > 0)
+                    {
+                            Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                        var wc = webClients.Take();
+                var r = vs.Take();
+                if (!done.ContainsKey(r))
+                {
+
+
+                    done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           RegexOptions.IgnoreCase).Groups["Title"].Value );
+                    webClients.Add(new HttpClient());
+                        // wc.DownloadStringCompleted+=(s, e)=>
+                    }
+
+                      webClients.Add(new HttpClient());
+                    }
+
+                }),
+               // var _third=
+                  Task.Run(async () =>
+                {
+                        Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                    while (vs.Count > 0)
+                    {
+                            Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                        var wc = webClients.Take();
+                var r = vs.Take();
+                if (!done.ContainsKey(r))
+                {
+
+
+                    done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           RegexOptions.IgnoreCase).Groups["Title"].Value );
+                    webClients.Add(new HttpClient());
+                        // wc.DownloadStringCompleted+=(s, e)=>
+                    }
+
+                      webClients.Add(new HttpClient());
+                    }
+
+                }),
+             //   var _fourth=
+               Task.Run(async () =>
+                {
+                        Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                    while (vs.Count > 0)
+                    {
+                            Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                        var wc = webClients.Take();
+                var r = vs.Take();
+                if (!done.ContainsKey(r))
+                {
+
+
+                    done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           RegexOptions.IgnoreCase).Groups["Title"].Value );
+                    webClients.Add(new HttpClient());
+                        // wc.DownloadStringCompleted+=(s, e)=>
+                    }
+                      webClients.Add(new HttpClient());
+                    }
+
+                }),
+             //   var _fn=
+                  Task.Run(async () =>
+                {
+                        Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+
+                     while (vs.Count > 0)
+                    {
+                            Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                        var wc = webClients.Take();
+                var r = vs.Take();
+                if (!done.ContainsKey(r))
+                {
+
+
+                    done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           RegexOptions.IgnoreCase).Groups["Title"].Value );
+                    webClients.Add(new HttpClient());
+                        // wc.DownloadStringCompleted+=(s, e)=>
+                    }
+                      webClients.Add(new HttpClient());
+                    }
+
+                }),
+              //  var _six=
+                  Task.Run(async () =>
+                {
+
+                     while (vs.Count > 0)
+                    {
+                        Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                        var wc = webClients.Take();
+                var r = vs.Take();
+                if (!done.ContainsKey(r))
+                {
+
+
+                    done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           RegexOptions.IgnoreCase).Groups["Title"].Value );
+                    webClients.Add(new HttpClient());
+                        // wc.DownloadStringCompleted+=(s, e)=>
+                    }
+
+                      webClients.Add(new HttpClient());
+                    }
+
+                }),
+              //  var _seven=
+                Task.Run(async () =>
+                {
+
+                      while (vs.Count > 0)
+                    {
+                            Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                        var wc = webClients.Take();
+                var r = vs.Take();
+                if (!done.ContainsKey(r))
+                {
+
+
+                    done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           RegexOptions.IgnoreCase).Groups["Title"].Value );
+                    webClients.Add(new HttpClient());
+                               webClients.Add(new HttpClient());
+
+                        // wc.DownloadStringCompleted+=(s, e)=>
+                    }
+
+                      webClients.Add(new HttpClient());
+                    }
+
+                }),
+            //    var eight=
+                 Task.Run(async () =>
+                {
+
+                     while (vs.Count > 0)
+                    {
+                            Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                        var wc = webClients.Take();
+                var r = vs.Take();
+                if (!done.ContainsKey(r))
+                {
+
+
+                    done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           RegexOptions.IgnoreCase).Groups["Title"].Value );
+                    webClients.Add(new HttpClient());
+                               webClients.Add(new HttpClient());
+                        // wc.DownloadStringCompleted+=(s, e)=>
+                    }
+
+                      webClients.Add(new HttpClient());
+                    }
+
+                }),
+                //var nine=
+                  Task.Run(async () =>
+                {
+
+                      while (vs.Count > 0)
+                    {
+                            Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                        var wc = webClients.Take();
+                var r = vs.Take();
+                if (!done.ContainsKey(r))
+                {
+
+
+                    done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           RegexOptions.IgnoreCase).Groups["Title"].Value );
+                    webClients.Add(new HttpClient());
+                               webClients.Add(new HttpClient());
+                        // wc.DownloadStringCompleted+=(s, e)=>
+                    }
+                      webClients.Add(new HttpClient());
+                    }
+
+                }),
+              //  var ten=
+                  Task.Run(async () =>
+                {
+
+                    while (vs.Count > 0)
+                    {
+                            Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                        var wc = webClients.Take();
+                var r = vs.Take();
+                if (!done.ContainsKey(r))
+                {
+
+
+                    done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           RegexOptions.IgnoreCase).Groups["Title"].Value );
+                    webClients.Add(new HttpClient());
+                               webClients.Add(new HttpClient());
+                        // wc.DownloadStringCompleted+=(s, e)=>
+                    }
+
+                      webClients.Add(new HttpClient());
+                    }
+
+                }),
+                //var eleven=
+                 Task.Run(async () =>
+                {
+
+                    while (vs.Count > 0)
+                    {
+                            Logger.LogInformation($"{Task.CurrentId} task run and alredy get {done.Count} elements");
+                        var wc = webClients.Take();
+                var r = vs.Take();
+                if (!done.ContainsKey(r))
+                {
+
+
+                    done.TryAdd(r, Regex.Match(await wc.GetStringAsync(new Uri(url + r)), @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+           RegexOptions.IgnoreCase).Groups["Title"].Value );
+                    webClients.Add(new HttpClient());
+                               webClients.Add(new HttpClient());
+                        // wc.DownloadStringCompleted+=(s, e)=>
+                    }
+                      webClients.Add(new HttpClient());
+                    }
+
+                })
                 };
 
-          
-                string title = Regex.Match(_s, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
-        RegexOptions.IgnoreCase).Groups["Title"].Value;
-                if (title != String.Empty)
-                {
-                 //   if (!names.Contains(title))
-                    names.Add(title); 
-                }
-                else
-                {
-                  var _tmp=  stringBuilder.ToString().Split(new char[] { '/' });
 
-                   // if (!names.Contains(_tmp.Last()))
-                     names.Add(_tmp.Last()); 
-                }
-            }
-            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is started");
-            return names;
+            //var tasks = new List<Task<IEnumerable<string>>>();
+            //var batchSize = 400;
+            //int numberOfBatches = (int)Math.Ceiling((double)requests.Count() / batchSize);
+            //var tmp_list = new List<String>();
+            //for(int i=0;i<numberOfBatches;i++)
+            //{
+            //    Logger.LogInformation($"{i} number of batches start");
+            //    try
+            //    {
+            //      var curr = requests.Skip(i * batchSize).Take(batchSize);
+            //    var tasks = curr.Select(d => httpClient.GetStringAsync(url+d));
+            //    tmp_list.AddRange(await Task.WhenAll(tasks));
+            //    }
+
+            //    catch(HttpRequestException e)
+            //    {
+            //        Logger.LogError($"{e.Message} {e.InnerException} {e.Data}");
+            //    }
+            //    //tasks.Add(httpClient.GetStringAsync(curr.));
+            //    Logger.LogInformation($"{i} number of batches finished");
+            //}
+
+            //var tasks = requests.Select(i => httpClient.GetStringAsync(url+i));
+            await Task.WhenAll(threads).ContinueWith((t) => { return done; });
+
+            Logger.LogInformation($"{DateTime.Now} GetNames method finished");
+
+            return done;
+            //using(MyClient myClient= new MyClient())
+            //{
+            //    myClient.HeadOnly = true;
+            //    if (!done.ContainsKey(requests[i]))
+            //    {
+            //        var db_data = await appDbContext.MainTable.FirstOrDefaultAsync(qq => qq.FilesInfo.Path == requests[i]);
+            //        if (db_data == null)
+            //        {
+            //            try
+            //            {
+            //                if (resutl_request[i] == 200)
+            //                {
+
+
+            //                    _s = await x.DownloadStringTaskAsync(stringBuilder.ToString());
+            //                }
+            //                else
+            //                {
+            //                    _s = string.Empty;
+            //                }
+            //            }
+            //            catch (WebException e)
+            //            {
+            //                Logger.LogError($"{e.Message}, {e.Response}");
+            //            }
+            //        }
+            //        else
+            //        {
+            //            _s = db_data.FilesInfo.Name;
+            //            done.Add(requests[i], _s);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        _s = done[requests[i]];
+            //    }
+
+            //}
+
+            //string _data = String.Empty;
+            //x.DownloadDataCompleted += (sender, e) =>
+            //{
+            //    _data = Encoding.ASCII.GetString(e.Result);
+            //};
+
+            //foreach(var t in threads )
+            //{
+            //    t.Start();
+            //}
+            //    await Task.WhenAll(threads);
+
+            //Dictionary<string, string> res = new Dictionary<string, string>();
+            //    for (int i = 0; i < done.Count; i++)
+            //    {
+            //    done.ElementAt(i)
+
+            //        string title = Regex.Match(done.ElementAt(i).Value, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+            //RegexOptions.IgnoreCase).Groups["Title"].Value;
+            //        //if (title != String.Empty)
+            //        //{
+            //        //   if (!names.Contains(title))
+            //        names.Add(title);
+            //        //}
+            //else
+            //{
+            //    var _tmp = stringBuilder.ToString().Split(new char[] { '/' });
+
+            //    // if (!names.Contains(_tmp.Last()))
+            //    names.Add(_tmp.Last());
+            //}
+            // }
+
+
+            //  Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is started");
+            //return done;
         }
 
         public async Task<Tuple<List<string>, Dictionary<string, string>>> GetNames(List<string> requests, string url  = "http://tariscope.com")
@@ -540,13 +1506,14 @@ namespace WebApplication25.Services
             Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is started");
             Dictionary<string, string> done = new Dictionary<string, string>();
 
-            List<string> names = new List<string>();
+            List<string> names = new List<string>();        
             for (int i = 0; i < requests.Count; i++)
             {
                 StringBuilder stringBuilder = new StringBuilder(url);
                 stringBuilder.Append(requests[i]);
 
                 WebClient x = new WebClient();
+                
                 x.Proxy = null;
                 string _s = string.Empty;
                 string title = string.Empty;
@@ -670,37 +1637,161 @@ namespace WebApplication25.Services
         }
 
 
-        public async Task<List<string>> GetCompaniesName(List<string> ip)
+        public async Task<ConcurrentDictionary<string, string>> GetCompaniesName(List<string> ip)
         {
             Logger.LogInformation($"{DateTime.Now.ToString()} GetCompaniesNames method HandleLog class is started");
-            using var cl = new HttpClient();
-            //token on ipinfo.io, monthly limit has already been used
-            var api = new IpInfoApi("e233289eabbf1b", cl);
-          
-            List<string> companies = new List<string>();
-            for (int i = 0; i < ip.Count; i++)
+            using var cl0 = new HttpClient();
+            using var cl1 = new HttpClient();
+            using var cl2 = new HttpClient();
+            using var cl3 = new HttpClient();
+            using var cl4 = new HttpClient();
+            using var cl5 = new HttpClient();
+            using var cl6 = new HttpClient();
+            using var cl7 = new HttpClient();
+            using var cl8 = new HttpClient();
+            using var cl9 = new HttpClient();
+            using var cl10 = new HttpClient();
+            using var cl11 = new HttpClient();
+            using var cl12= new HttpClient();
+            using var cl13 = new HttpClient();
+            using var cl14= new HttpClient();
+            using var cl15= new HttpClient();
+            using var cl16 = new HttpClient();
+            using var cl17 = new HttpClient();
+            using var cl18 = new HttpClient();
+            using var cl19 = new HttpClient();
+            using var cl20 = new HttpClient();
+            using var cl21= new HttpClient();
+            using var cl22 = new HttpClient();
+
+            ConcurrentDictionary<string, string> keyValuePairs = new ConcurrentDictionary<string, string>();
+            BlockingCollection<HttpClient> httpClients = new BlockingCollection<HttpClient>()
             {
-                //check if db contains such data
-                var _dbdata = await appDbContext.IpInfo.FirstOrDefaultAsync(t => t.IPAddress == Encoding.ASCII.GetBytes(ip[i]));
-                if (_dbdata == null)
-                {
-
-
-
-                    var r = await api.GetOrganizationByIpAsync(ip[i]);
-
-
-
-
-                    companies.Add(r);
-                }
-                else
-                {
-                    companies.Add(_dbdata.CompanyName);
-                }
+                new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(), new HttpClient(),
+                new HttpClient(), new HttpClient(), new HttpClient()
+            };
+            BlockingCollection<string> _ip = new BlockingCollection<string>();
+            for(int i=0; i<ip.Count;i++)
+            {
+                _ip.Add(ip[i]);
             }
+            BlockingCollection<IpInfoApi> ipInfoApis = new BlockingCollection<IpInfoApi>()
+            {
+                new IpInfoApi("e233289eabbf1b", cl0),  new IpInfoApi("e233289eabbf1b", cl1), new IpInfoApi("e233289eabbf1b", cl2), new IpInfoApi("e233289eabbf1b", cl3), new IpInfoApi("e233289eabbf1b", cl4), new IpInfoApi("e233289eabbf1b", cl5),
+                 new IpInfoApi("e233289eabbf1b", cl6), new IpInfoApi("e233289eabbf1b", cl7), new IpInfoApi("e233289eabbf1b", cl8), new IpInfoApi("e233289eabbf1b", cl9), new IpInfoApi("e233289eabbf1b", cl10),
+                
+            };
+
+            List<Task> tasks = new List<Task>()
+            {
+                Task.Run(async() =>
+                {
+                    while(_ip.Count>0)
+                    {
+                        var q=ipInfoApis.Take();
+                        var ipAddr=_ip.Take();
+                        keyValuePairs.TryAdd(ipAddr, await q.GetOrganizationByIpAsync(ipAddr));
+                        ipInfoApis.Add(new IpInfoApi("e233289eabbf1b", cl0));
+                        
+                    }
+
+                }),
+                Task.Run(async() =>
+                {
+
+                    while(_ip.Count>0)
+                    {
+                        var q=ipInfoApis.Take();
+                        var ipAddr=_ip.Take();
+                        keyValuePairs.TryAdd(ipAddr, await q.GetOrganizationByIpAsync(ipAddr));
+                        ipInfoApis.Add(new IpInfoApi("e233289eabbf1b", cl1));
+
+                    }
+
+                }),
+                 Task.Run(async() =>
+                {
+                    while(_ip.Count>0)
+                    {
+                        var q=ipInfoApis.Take();
+                        var ipAddr=_ip.Take();
+                        keyValuePairs.TryAdd(ipAddr, await q.GetOrganizationByIpAsync(ipAddr));
+                        ipInfoApis.Add(new IpInfoApi("e233289eabbf1b", cl2));
+
+                    }
+
+                }),
+                Task.Run(async() =>
+                {
+
+                    while(_ip.Count>0)
+                    {
+                        var q=ipInfoApis.Take();
+                        var ipAddr=_ip.Take();
+                        keyValuePairs.TryAdd(ipAddr, await q.GetOrganizationByIpAsync(ipAddr));
+                        ipInfoApis.Add(new IpInfoApi("e233289eabbf1b", cl3));
+
+                    }
+
+                }),
+                 Task.Run(async() =>
+                {
+                    while(_ip.Count>0)
+                    {
+                        var q=ipInfoApis.Take();
+                        var ipAddr=_ip.Take();
+                        keyValuePairs.TryAdd(ipAddr, await q.GetOrganizationByIpAsync(ipAddr));
+                        ipInfoApis.Add(new IpInfoApi("e233289eabbf1b", cl9));
+
+                    }
+
+                }),
+                Task.Run(async() =>
+                {
+
+                    while(_ip.Count>0)
+                    {
+                        var q=ipInfoApis.Take();
+                        var ipAddr=_ip.Take();
+                        keyValuePairs.TryAdd(ipAddr, await q.GetOrganizationByIpAsync(ipAddr));
+                        ipInfoApis.Add(new IpInfoApi("e233289eabbf1b", cl20));
+
+                    }
+
+                })
+
+            };
+
+
+          await  Task.WhenAll(tasks).ContinueWith((t) => keyValuePairs);
+         //   return keyValuePairs;
+                //token on ipinfo.io, monthly limit has already been used
+            //var api = new IpInfoApi("e233289eabbf1b", cl);
+          
+            //List<string> companies = new List<string>();
+            //for (int i = 0; i < ip.Count; i++)
+            //{
+            //    //check if db contains such data
+            //    var _dbdata = await appDbContext.IpInfo.FirstOrDefaultAsync(t => t.IPAddress == Encoding.ASCII.GetBytes(ip[i]));
+            //    if (_dbdata == null)
+            //    {
+
+
+
+            //        var r = await api.GetOrganizationByIpAsync(ip[i]);
+
+
+
+
+            //        companies.Add(r);
+            //    }
+            //    else
+            //    {
+            //        companies.Add(_dbdata.CompanyName);
+            //    }
+            //}
             Logger.LogInformation($"{DateTime.Now.ToString()} GetCompaniesName method HandleLog class is stoped");
-            return companies;
+            return keyValuePairs;
         }
 
 

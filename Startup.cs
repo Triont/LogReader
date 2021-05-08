@@ -39,7 +39,7 @@ namespace WebApplication25
             services.AddMemoryCache();
             services.AddSession();
             //Using hosted service
-            services.AddSingleton<IHostedService, HostService>();
+         //   services.AddSingleton<IHostedService, HostService>();
             //or
            // services.AddHostedService<HostedBackground>();
 
