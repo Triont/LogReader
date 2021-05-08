@@ -31,6 +31,7 @@ namespace WebApplication25.Services
     
         public async Task<bool> GetData(string path)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetData method HandleLog class is started");
             if (File.Exists(path))
             {
                 lines = File.ReadAllLines(path);
@@ -53,17 +54,7 @@ namespace WebApplication25.Services
                     }
                 }
 
-                //allowed.Add(lines[0]);
-                //allowed.Add(lines[1]);
-                //allowed.Add(lines[4593]);
-                //allowed.Add(lines[249]);
-                //allowed.Add(lines[359]);
-                //allowed.Add(lines[499]); allowed.Add(lines[5]);
-                //allowed.Add(lines[1540]);
-                //allowed.Add(lines[888]); allowed.Add(lines[89]);
-                //allowed.Add(lines[90]);
-             //   allowed.Add(lines[493]);
-                //   !var _allowed = allowed[0];
+             
                 var data_time_logged = await GetDateTimesString(allowed);
                 var ip_addresses = await GetAllIp(allowed);
                 var datetimes_list = await _GetDateTimes(data_time_logged);
@@ -75,13 +66,12 @@ namespace WebApplication25.Services
 
                 ParseRequest(based_requests, out request_types, out urls);
 
+                List<int> _result;
+                List<long> _dataVolume;
+                GetResultAndDataVolume(allowed, out _result, out _dataVolume);
 
-                //  var t=    await GetNames(urls);
-                //   var a=await appDbContext.FilesInfos.ToDictionaryAsync(x => x.Path, x => x.Name);
-                //  var af=   await GetNames(urls);
 
-
-                var Names = await GetNames(urls, new Dictionary<string, string>());
+                var Names = await GetNames(urls, new Dictionary<string, string>(), _result);
 
                 List<string> CompaniesName = await GetCompaniesName(ip_addresses);
 
@@ -93,28 +83,18 @@ namespace WebApplication25.Services
                 {
                     byte_arr_ipaddr.Add(Encoding.ASCII.GetBytes(ip_addresses[i]));
                 }
-                //var q = Task.Run(() => GetNames(urls, new Dictionary<string, string>()));
-                //var qqq = Task.Run(() => GetCompaniesName(ip_addresses));
-                //List<Task<List<string>>> lst_task = new List<Task<List<string>>>() { q, qqq };
-                List<int> _result;
-                List<long> _dataVolume;
-                GetResultAndDataVolume(allowed, out _result, out _dataVolume);
+           
+             
 
 
 
-                if (allowed.Count == _result.Count && allowed.Count == byte_arr_ipaddr.Count)
-                {
-
-                }
                 var tempDataListIp = await appDbContext.IpInfo.ToListAsync();
                 var tempDataListFiles = await appDbContext.FilesInfos.ToListAsync();
-                //if (q.IsCompleted && qqq.IsCompleted)
-                //    await     Task.WhenAll(lst_task).ContinueWith(async(o) =>
-                //       {
+               
 
                 for (int _i = 0; _i < allowed.Count; _i++)
                 {
-
+                    Logger.LogInformation($"Start loop for save data");
                     var _m_count = appDbContext.MainTable.Count();
                     MainTable _main = new MainTable();
                     if (_m_count != 0)
@@ -122,112 +102,10 @@ namespace WebApplication25.Services
                         var _ip = await appDbContext.IpInfo.FirstOrDefaultAsync(i => i.IPAddress == byte_arr_ipaddr[_i]);
                         var _file = await appDbContext.FilesInfos.FirstOrDefaultAsync(i => i.Path == urls[_i]);
 
-                        // var _ip =  tempDataListIp.FirstOrDefault(i => i.IPAddress == byte_arr_ipaddr[_i]);
-                        // var _file =  tempDataListFiles.FirstOrDefault(i => i.Path == urls[_i]);
-
-
+                       //if db not contains ip and file path
                         if (_file == null && _ip == null)
                         {
-                            await appDbContext.MainTable.AddAsync(new MainTable()
-                            {
-                                DateTime = datetimes_list[_i],
-                                DataVolume = _dataVolume[_i],
-                                RequestResult = _result[_i],
-                                RequestType = request_types[_i],
-                                DateTimeLog = data_time_logged[_i],
-
-                                _IPinfo =
-
-                          new IPinfo()
-                          {
-                              IPAddress = byte_arr_ipaddr[_i],
-                             // CompanyName = qqq.Result[_i]
-                             CompanyName=CompaniesName[_i]
-                          },
-
-
-                                FilesInfo = new FilesInfo()
-                                {
-                                    DataVolume = _dataVolume[_i],
-                                    Name = Names[_i],
-                                    Path = urls[_i]
-                                }
-
-
-                            }
-                          );
-                        }
-
-
-                        else if (_file != null && _ip == null)
-                        {
-                            await appDbContext.MainTable.AddAsync(new MainTable()
-                            {
-                                DateTime = datetimes_list[_i],
-                                DataVolume = _dataVolume[_i],
-                                RequestResult = _result[_i],
-                                RequestType = request_types[_i],
-                                DateTimeLog = data_time_logged[_i],
-
-                                _IPinfo =
-
-                           new IPinfo()
-                           {
-                               IPAddress = byte_arr_ipaddr[_i],
-                               CompanyName = CompaniesName[_i]
-                           },
-
-
-                                FilesInfo = _file ?? new FilesInfo()
-                                {
-                                    DataVolume = _dataVolume[_i],
-                                    Name = Names[_i],
-                                    Path = urls[_i]
-                                }
-
-
-                            }
-                           );
-
-                        }
-                        else if (_file == null && _ip != null)
-                        {
-                            await appDbContext.MainTable.AddAsync(new MainTable()
-                            {
-                                DateTime = datetimes_list[_i],
-                                DataVolume = _dataVolume[_i],
-                                RequestResult = _result[_i],
-                                RequestType = request_types[_i],
-                                DateTimeLog = data_time_logged[_i],
-
-                                _IPinfo = _ip ??
-
-                          new IPinfo()
-                          {
-                              IPAddress = byte_arr_ipaddr[_i],
-                              CompanyName = CompaniesName[_i]
-                          },
-
-
-                                FilesInfo = new FilesInfo()
-                                {
-                                    DataVolume = _dataVolume[_i],
-                                    Name = Names[_i],
-                                    Path = urls[_i]
-                                }
-
-
-                            }
-                          );
-                        }
-                        else if (_file != null && _ip != null)
-                        {
-
-                            if (!appDbContext.MainTable.Any(i => ((i.DataVolume == _dataVolume[_i])
-                               && (i.DateTime == datetimes_list[_i]) && (i.DateTimeLog == data_time_logged[_i])
-                               && (i.RequestResult == _result[_i]) && (i.RequestType == request_types[_i])
-                               && (i._IPinfo.Id == _ip.Id)) && (i.FilesInfo.Id == _file.Id)
-                           ))
+                            if (Names[_i] != string.Empty)
                             {
                                 await appDbContext.MainTable.AddAsync(new MainTable()
                                 {
@@ -237,13 +115,51 @@ namespace WebApplication25.Services
                                     RequestType = request_types[_i],
                                     DateTimeLog = data_time_logged[_i],
 
-                                    _IPinfo = _ip ??
+                                    _IPinfo =
 
-                                       new IPinfo()
-                                       {
-                                           IPAddress = byte_arr_ipaddr[_i],
-                                           CompanyName = CompaniesName[_i]
-                                       },
+                              new IPinfo()
+                              {
+                                  IPAddress = byte_arr_ipaddr[_i],
+                              // CompanyName = qqq.Result[_i]
+                              CompanyName = CompaniesName[_i]
+                              },
+
+
+                                    FilesInfo = new FilesInfo()
+                                    {
+                                        DataVolume = _dataVolume[_i],
+                                        Name = Names[_i],
+                                        Path = urls[_i]
+                                    }
+
+
+                                }
+
+                              );
+
+                            }
+                        }
+
+
+                        else if (_file != null && _ip == null)
+                        {
+                            if (Names[_i] != string.Empty)
+                            {
+                                await appDbContext.MainTable.AddAsync(new MainTable()
+                                {
+                                    DateTime = datetimes_list[_i],
+                                    DataVolume = _dataVolume[_i],
+                                    RequestResult = _result[_i],
+                                    RequestType = request_types[_i],
+                                    DateTimeLog = data_time_logged[_i],
+
+                                    _IPinfo =
+
+                           new IPinfo()
+                           {
+                               IPAddress = byte_arr_ipaddr[_i],
+                               CompanyName = CompaniesName[_i]
+                           },
 
 
                                     FilesInfo = _file ?? new FilesInfo()
@@ -255,62 +171,101 @@ namespace WebApplication25.Services
 
 
                                 }
-                                       );
+                           );
                             }
-                            // _main = await appDbContext.MainTable?.FirstOrDefaultAsync(i => ((i.DataVolume == _dataVolume[_i])
-                            //   && (i.DateTime == datetimes_list[_i] )&& (i.DateTimeLog == data_time_logged[_i])
-                            //   && (i.RequestResult == _result[_i]) && (i.RequestType == request_types[_i])
-                            //   && (i._IPinfo.Id == _ip.Id) &&( i.FilesInfo.Id == _file.Id)
-                            //) );
+
+                        }
+                        else if (_file == null && _ip != null)
+                        {
+                            if (Names[_i] != string.Empty)
+                            {
+                                await appDbContext.MainTable.AddAsync(new MainTable()
+                                {
+                                    DateTime = datetimes_list[_i],
+                                    DataVolume = _dataVolume[_i],
+                                    RequestResult = _result[_i],
+                                    RequestType = request_types[_i],
+                                    DateTimeLog = data_time_logged[_i],
+
+                                    _IPinfo = _ip ??
+
+                          new IPinfo()
+                          {
+                              IPAddress = byte_arr_ipaddr[_i],
+                              CompanyName = CompaniesName[_i]
+                          },
 
 
-                            //if (_main == null)
-                            //{
-
-                            //    await appDbContext.MainTable.AddAsync(new MainTable()
-                            //    {
-                            //        DateTime = datetimes_list[_i],
-                            //        DataVolume = _dataVolume[_i],
-                            //        RequestResult = _result[_i],
-                            //        RequestType = request_types[_i],
-                            //        DateTimeLog = data_time_logged[_i],
-
-                            //        _IPinfo = _ip ??
-
-                            //           new IPinfo()
-                            //           {
-                            //               IPAddress = byte_arr_ipaddr[_i],
-                            //               CompanyName = CompaniesName[_i]
-                            //           },
+                                    FilesInfo = new FilesInfo()
+                                    {
+                                        DataVolume = _dataVolume[_i],
+                                        Name = Names[_i],
+                                        Path = urls[_i]
+                                    }
 
 
-                            //        FilesInfo = _file ?? new FilesInfo()
-                            //        {
-                            //            DataVolume = _dataVolume[_i],
-                            //            Name = Names[_i],
-                            //            Path = urls[_i]
-                            //        }
+                                }
+                          );
+                            }
+                        }
+                        else if (_file != null && _ip != null)
+                        {
+                            if (Names[_i] != string.Empty)
+                            {
+                                if (!appDbContext.MainTable.Any(i => ((i.DataVolume == _dataVolume[_i])
+                               && (i.DateTime == datetimes_list[_i]) && (i.DateTimeLog == data_time_logged[_i])
+                               && (i.RequestResult == _result[_i]) && (i.RequestType == request_types[_i])
+                               && (i._IPinfo.Id == _ip.Id)) && (i.FilesInfo.Id == _file.Id)
+                           ))
+                                {
+                                    await appDbContext.MainTable.AddAsync(new MainTable()
+                                    {
+                                        DateTime = datetimes_list[_i],
+                                        DataVolume = _dataVolume[_i],
+                                        RequestResult = _result[_i],
+                                        RequestType = request_types[_i],
+                                        DateTimeLog = data_time_logged[_i],
+
+                                        _IPinfo = _ip ??
+
+                                           new IPinfo()
+                                           {
+                                               IPAddress = byte_arr_ipaddr[_i],
+                                               CompanyName = CompaniesName[_i]
+                                           },
 
 
-                            //    }
-                            //           );
-                            //}
+                                        FilesInfo = _file ?? new FilesInfo()
+                                        {
+                                            DataVolume = _dataVolume[_i],
+                                            Name = Names[_i],
+                                            Path = urls[_i]
+                                        }
+
+
+                                    }
+                                           );
+                                }
+                            }
+                          
                         }
 
                     }
                     else
                     {
-
-
-                        await appDbContext.MainTable.AddAsync(new MainTable()
+                        if (Names[_i] != string.Empty)
                         {
-                            DateTime = datetimes_list[_i],
-                            DataVolume = _dataVolume[_i],
-                            RequestResult = _result[_i],
-                            RequestType = request_types[_i],
-                            DateTimeLog = data_time_logged[_i],
 
-                            _IPinfo =
+
+                            await appDbContext.MainTable.AddAsync(new MainTable()
+                            {
+                                DateTime = datetimes_list[_i],
+                                DataVolume = _dataVolume[_i],
+                                RequestResult = _result[_i],
+                                RequestType = request_types[_i],
+                                DateTimeLog = data_time_logged[_i],
+
+                                _IPinfo =
 
                                new IPinfo()
                                {
@@ -319,49 +274,30 @@ namespace WebApplication25.Services
                                },
 
 
-                            FilesInfo = new FilesInfo()
-                            {
-                                DataVolume = _dataVolume[_i],
-                                Name = Names[_i],
-                                Path = urls[_i]
+                                FilesInfo = new FilesInfo()
+                                {
+                                    DataVolume = _dataVolume[_i],
+                                    Name = Names[_i],
+                                    Path = urls[_i]
+                                }
+
+
                             }
-
-
-                        }
                                );
-
+                        }
 
 
                     }
-                    // if (appDbContext.IpInfo.Where(i=>i.IPAddress==byte_arr_ipaddr[0]).Any())
-                    // {
+                   
                     await appDbContext.SaveChangesAsync();
-
+                    Logger.LogInformation($"{DateTime.Now.ToString()} data is saved to db");
 
                 }
 
                 await appDbContext.SaveChangesAsync();
             }
                 await appDbContext.SaveChangesAsync();
-                // GetDateTimesString();
-                //var fullText = await File.ReadAllTextAsync(path);
-
-
-                //Regex ip = new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
-                //MatchCollection result = ip.Matches(fullText);
-                //for (int i = 0; i < fullText.Length; i++)
-                //{
-                //    MainTable mainTable = new();
-                //    FilesInfo filesInfo = new();
-                //    IPinfo ip_info = new();
-                //    //    ip_info.IPAddress=result[]
-
-
-
-                //}
-
-          //  }
-
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetData method HandleLog class is stoped");
             return await Task.Run(() => false);
         }
 
@@ -387,6 +323,7 @@ namespace WebApplication25.Services
         }
         public async Task<List<string>> GetAllIp(List<string> lines)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetAllIp method HandleLog class is started");
             Regex ip = new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
             Regex incorrect_ip = new Regex(@"\b\d{1,3}\-\d{1,3}\-\d{1,3}\-\d{1,3}");
             List<string> vs = new List<string>();
@@ -410,7 +347,7 @@ namespace WebApplication25.Services
 
 
             }
-
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetAllIp method HandleLog class is stoped");
             return await Task.Run(() => vs);
 
 
@@ -438,6 +375,7 @@ namespace WebApplication25.Services
 
         public async Task<List<string>> GetDateTimesString(List<string> lines)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetDateTimesString method HandleLog class is started");
             List<string> tmp = new List<string>();
             Regex regex = new Regex(@"\[([^[\]]+)\]");
 
@@ -452,14 +390,7 @@ namespace WebApplication25.Services
                     }
                 }
             });
-            //for (int i = 0; i < lines.Count; i++)
-            //{
-            //    var m = regex.Match(lines[i]);
-            //    if (m.Success)
-            //    {
-            //        tmp.Add(m.Value);
-            //    }
-            //}
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetDateTimesString method HandleLog class is stoped");
             return tmp;
 
         }
@@ -469,6 +400,7 @@ namespace WebApplication25.Services
 
         public async Task< List<DateTime>> _GetDateTimes(List<string> str)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} _GetDateTimes method HandleLog class is started");
             List<DateTime> dateTimes = new List<DateTime>();
           await  Task.Run(() =>
             {
@@ -522,18 +454,19 @@ namespace WebApplication25.Services
 
                 }
             });
-           
+            Logger.LogInformation($"{DateTime.Now.ToString()} _GetDateTimes method HandleLog class is stoped");
             return dateTimes;
         }
 
-        public async Task<List<string>> GetNames(List<string> requests, Dictionary<string, string> done, string url = "http://tariscope.com")
+        public async Task<List<string>> GetNames(List<string> requests, Dictionary<string, string> done, List<int> resutl_request, string url = "http://tariscope.com")
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is started");
             List<string> names = new List<string>();
             for (int i = 0; i < requests.Count; i++)
             {
                 StringBuilder stringBuilder = new StringBuilder(url);
                 stringBuilder.Append(requests[i]);
-
+                Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class {i} element is  processing");
                 WebClient x = new WebClient();
                 x.Proxy = null;
                 string _s = string.Empty;
@@ -542,13 +475,31 @@ namespace WebApplication25.Services
                     myClient.HeadOnly = true;
                     if (!done.ContainsKey(requests[i]))
                     {
-                        try
+                        var db_data = await appDbContext.MainTable.FirstOrDefaultAsync(qq => qq.FilesInfo.Path == requests[i]);
+                        if (db_data == null)
                         {
-                            _s = await x.DownloadStringTaskAsync(stringBuilder.ToString());
+                            try
+                            {
+                                if (resutl_request[i] == 200)
+                                {
+
+
+                                    _s = await x.DownloadStringTaskAsync(stringBuilder.ToString());
+                                }
+                                else
+                                {
+                                    _s = string.Empty;
+                                }
+                            }
+                            catch (WebException e)
+                            {
+                                Logger.LogError($"{e.Message}, {e.Response}");
+                            }
                         }
-                        catch (WebException e)
+                        else
                         {
-                            Logger.LogError($"{e.Message}, {e.Response}");
+                            _s = db_data.FilesInfo.Name;
+                            done.Add(requests[i], _s);
                         }
                     }
                     else
@@ -557,41 +508,14 @@ namespace WebApplication25.Services
                     }
 
                 }
-                //if (!done.ContainsKey(requests[i]))
-                //{
-                //    try
-                //    {
-                //        _s = await x.DownloadStringTaskAsync(stringBuilder.ToString());
-                //    }
-                //    catch (WebException e)
-                //    {
-                //        Logger.LogError($"{e.Message}, {e.Response}");
-                //    }
-                //}
-                //else
-                //{
-                //    _s = done[requests[i]];
-                //}
+             
                 string _data = String.Empty;
                 x.DownloadDataCompleted += (sender, e) =>
                 {
                     _data = Encoding.ASCII.GetString(e.Result);
                 };
 
-                //    x.DownloadStringAsync(new Uri(stringBuilder.ToString()));
-                // string source = x.DownloadString(stringBuilder.ToString());
-                //await Task.Run(() =>
-                //{
-                //    try {
-                //        _data = x.DownloadString(stringBuilder.ToString());
-                //    }
-                //    catch (WebException e)
-                //    {
-                //        Logger.LogError($"{e.Message}, {e.Response}");
-                //    }
-
-                //});
-        
+          
                 string title = Regex.Match(_s, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
         RegexOptions.IgnoreCase).Groups["Title"].Value;
                 if (title != String.Empty)
@@ -607,11 +531,13 @@ namespace WebApplication25.Services
                      names.Add(_tmp.Last()); 
                 }
             }
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is stoped");
             return names;
         }
 
         public async Task<Tuple<List<string>, Dictionary<string, string>>> GetNames(List<string> requests, string url  = "http://tariscope.com")
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is started");
             Dictionary<string, string> done = new Dictionary<string, string>();
 
             List<string> names = new List<string>();
@@ -626,25 +552,36 @@ namespace WebApplication25.Services
                 string title = string.Empty;
                 if (!done.ContainsKey(requests[i]))
                 {
-                    try
+                    //check if db contains this request
+                    var _dbinfo = await appDbContext.FilesInfos.FirstOrDefaultAsync(p => p.Path == requests[i]);
+                    if (_dbinfo == null)
                     {
-                        _s = await x.DownloadStringTaskAsync(stringBuilder.ToString());
-                         title = Regex.Match(_s, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
-       RegexOptions.IgnoreCase).Groups["Title"].Value;
 
-                        if (title != string.Empty)
+                        try
                         {
-                            done.Add(requests[i], title);
+                            _s = await x.DownloadStringTaskAsync(stringBuilder.ToString());
+                            title = Regex.Match(_s, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+          RegexOptions.IgnoreCase).Groups["Title"].Value;
+
+                            if (title != string.Empty)
+                            {
+                                done.Add(requests[i], title);
+                            }
+                            else
+                            {
+                                var __tmp = title.Split(new char[] { '/' }).Last();
+                                done.Add(requests[i], __tmp);
+                            }
                         }
-                        else
+                        catch (WebException e)
                         {
-                            var __tmp = title.Split(new char[] { '/' }).Last();
-                            done.Add(requests[i], __tmp);
+                            Logger.LogError($"{e.Message}, {e.Response}");
                         }
                     }
-                    catch (WebException e)
+                    else
                     {
-                        Logger.LogError($"{e.Message}, {e.Response}");
+                        _s = _dbinfo.Name;
+                        done.Add(requests[i], _s);
                     }
                 }
                 else
@@ -657,47 +594,31 @@ namespace WebApplication25.Services
                     _data = Encoding.ASCII.GetString(e.Result);
                 };
 
-                //    x.DownloadStringAsync(new Uri(stringBuilder.ToString()));
-                // string source = x.DownloadString(stringBuilder.ToString());
-                //await Task.Run(() =>
-                //{
-                //    try {
-                //        _data = x.DownloadString(stringBuilder.ToString());
-                //    }
-                //    catch (WebException e)
-                //    {
-                //        Logger.LogError($"{e.Message}, {e.Response}");
-                //    }
-
-                //});
-
+            
+          
                 title = Regex.Match(_s, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
         RegexOptions.IgnoreCase).Groups["Title"].Value;
                 if (title != String.Empty)
                 {
-                   // if (!names.Contains(title))
+             
                      names.Add(title); 
                 }
                 else
                 {
-                    //if title empty get last substring in the url
+                   
                     var _tmp = stringBuilder.ToString().Split(new char[] { '/' });
 
-                 //   if (!names.Contains(_tmp.Last()))
                     names.Add(_tmp.Last()); 
                 }
             }
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetNames method HandleLog class is stoped");
             return new  (names, done);
         }
 
 
-        //public List<string> GetRequestType(List<string> str)
-        //{
-
-        //}
-
         public void ParseRequest(List<string> requests, out List<string> Type, out List<string> url)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} ParseRequest method HandleLog class is started");
             Type = new List<string>();
             url = new List<string>();
          
@@ -708,11 +629,12 @@ namespace WebApplication25.Services
                 Type.Add(request);
                 url.Add(tmp[1]);
             }
+            Logger.LogInformation($"{DateTime.Now.ToString()} ParseRequest method HandleLog class is stoped");
 
         }
         public void GetResultAndDataVolume(List<string> str, out List<int> results, out List<long> volume)
         {
-
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetREsultAndDataVolume method HandleLog class is started");
             results = new List<int>();
             volume = new List<long>();
             for (int i = 0; i < str.Count; i++)
@@ -743,40 +665,48 @@ namespace WebApplication25.Services
 
 
             }
-
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetResultAndDataVolume method HandleLog class is stoped");
 
         }
 
 
         public async Task<List<string>> GetCompaniesName(List<string> ip)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetCompaniesNames method HandleLog class is started");
             using var cl = new HttpClient();
-            var api = new IpInfoApi("530f45ab84efc1",cl);
+            //token on ipinfo.io, monthly limit has already been used
+            var api = new IpInfoApi("e233289eabbf1b", cl);
           
             List<string> companies = new List<string>();
             for (int i = 0; i < ip.Count; i++)
             {
-                
-                var r = await api.GetOrganizationByIpAsync(ip[i]);
-                
-                
-                //FullResponse fullResponse = new FullResponse();
-                //if(r=="\n")
-                //{
-                // fullResponse=await   api.GetInformationByIpAsync(ip[i]);
-                //   r= fullResponse.Company.Name;
-                //}
-                   // ;
-                
-                
-               companies.Add(r);
+                //check if db contains such data
+                var _dbdata = await appDbContext.IpInfo.FirstOrDefaultAsync(t => t.IPAddress == Encoding.ASCII.GetBytes(ip[i]));
+                if (_dbdata == null)
+                {
+
+
+
+                    var r = await api.GetOrganizationByIpAsync(ip[i]);
+
+
+
+
+                    companies.Add(r);
+                }
+                else
+                {
+                    companies.Add(_dbdata.CompanyName);
+                }
             }
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetCompaniesName method HandleLog class is stoped");
             return companies;
         }
 
 
         public async  Task< List<string>> GetRequests(List<string> all)
         {
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetRequests method HandleLog class is started");
             Regex regex1 = new Regex("\"[^\"]*\"");
             List<string> vs = new List<string>();
 
@@ -791,7 +721,7 @@ namespace WebApplication25.Services
                     }
                 }
             });
-          
+            Logger.LogInformation($"{DateTime.Now.ToString()} GetRequests method HandleLog class is stoped");
             return vs;
         }
 

@@ -16,13 +16,13 @@ using Newtonsoft;
 
 namespace WebApplication25.Services
 {
-    public class HandleLogParallel
+    public class HandleLogByLine
     {
 
 
         private readonly AppDbContext appDbContext;
         private ILogger<HandleLog> Logger;
-        public HandleLogParallel(AppDbContext appDbContext, ILogger<HandleLog> logger)
+        public HandleLogByLine(AppDbContext appDbContext, ILogger<HandleLog> logger)
         {
             this.appDbContext = appDbContext;
             this.Logger = logger;
@@ -51,21 +51,21 @@ namespace WebApplication25.Services
                     {
                         if (!(lines[i].Contains(" - admin ") || lines[i].Contains("/administrator ")))
                         {
-                          //  allowed.Add(lines[i]);
+                          allowed.Add(lines[i]);
                         }
                     }
                 }
 
-                allowed.Add(lines[0]);
-                allowed.Add(lines[1]);
-                allowed.Add(lines[4593]);
-                allowed.Add(lines[249]);
-                allowed.Add(lines[359]);
-                allowed.Add(lines[499]); allowed.Add(lines[5]);
-                allowed.Add(lines[1540]);
-                allowed.Add(lines[888]); allowed.Add(lines[89]);
-                allowed.Add(lines[90]);
-                allowed.Add(lines[493]);
+                //allowed.Add(lines[0]);
+                //allowed.Add(lines[1]);
+                //allowed.Add(lines[4593]);
+                //allowed.Add(lines[249]);
+                //allowed.Add(lines[359]);
+                //allowed.Add(lines[499]); allowed.Add(lines[5]);
+                //allowed.Add(lines[1540]);
+                //allowed.Add(lines[888]); allowed.Add(lines[89]);
+                //allowed.Add(lines[90]);
+                //allowed.Add(lines[493]);
 
                 List<string> mainTables = new List<string>();
                 List<string> ip = new List<string>();
@@ -85,8 +85,9 @@ namespace WebApplication25.Services
                 List<long> dataVolumes = new List<long>();
                 List<string> names = new List<string>();
 
-                Parallel.For(0, allowed.Count, async(i) =>
-                 {
+             //   Parallel.For(0, allowed.Count, async(i) =>
+                for(int i=0; i<allowed.Count;i++)
+                {
                      var _ip = GetIp(allowed[i]);
                      ip_list.Add(GetIp(allowed[i]));
                      var _datetimestr = await GetDateTimesString(allowed[i]);
@@ -98,31 +99,65 @@ namespace WebApplication25.Services
                      ParseRequest(t, out request, out url);
                      request_types.Add(request);
                      urls.Add(url);
-                     var compName = await GetCompaniesName(_ip);
-                     compNames.Add(compName);
-                     var name = await GetNames(allowed[i]);
-                     names.Add(name);
-                     int _res;
-                     long volume;
-                  
-                     GetResultAndDataVolume(allowed[i], out _res, out volume);
+                     
+                     var check_comp = await appDbContext.IpInfo.FirstOrDefaultAsync(i => i.IPAddress==_ip);
+                     if (check_comp == null)
+                     {
+                         var compName = await GetCompaniesName(_ip);
+                         compNames.Add(compName);
+                     }
+                     else
+                     {
+
+
+                         var compName_ = await appDbContext.IpInfo.FirstOrDefaultAsync(i => i.IPAddress == _ip);
+                         compNames.Add(compName_.CompanyName);
+                     }
+                    int _res;
+                    long volume;
+
+                    GetResultAndDataVolume(allowed[i], out _res, out volume);
+                    var check_name = await appDbContext.FilesInfos.FirstOrDefaultAsync(a => a.Path == url);
+                     if (check_name==null)
+                     {
+                        if(_res==200)
+                        {
+                                var name = await GetNames(url);
+                                 names.Add(name);
+                        }
+                        else
+                        {
+                            names.Add(String.Empty);
+                        }
+                           
+                     }
+                     else
+                     {
+                         var _name = await appDbContext.FilesInfos.FirstOrDefaultAsync(a => a.Path == url);
+                         names.Add(_name.Name);
+                     }
+                    
+                 
                      results.Add(_res);
                      dataVolumes.Add(volume);
                    
 
                     
                  }
-                );
 
 
-                for(int i=0; i<allowed.Count;i++)
+
+                for (int i = 0; i < allowed.Count; i++)
                 {
-                   //if(compNames.Count==ip_list.Count && urls.Count==compNames.Count && urls.Count==names.Count && dataVolumes.Count==urls.Count)
-                   // infoIp.CompanyName = compNames[i];
-                   // infoIp.IPAddress = ip_list[i];
-                   // filesInfo.Path = urls[i];
-                   // filesInfo.Name = names[i];
-                   // filesInfo.DataVolume = dataVolumes[i];
+                    //if(compNames.Count==ip_list.Count && urls.Count==compNames.Count && urls.Count==names.Count && dataVolumes.Count==urls.Count)
+                    infoIp.CompanyName = compNames[i];
+                    infoIp.IPAddress = ip_list[i];
+                    if (names[i] != string.Empty)
+                    {
+                        filesInfo.Path = urls[i];
+                        filesInfo.Name = names[i];
+                        filesInfo.DataVolume = dataVolumes[i];
+                    }
                     if (!ip.Contains(JsonConvert.SerializeObject(infoIp)))
                     {
                         infoIp = new IPinfo() { CompanyName = compNames[i], IPAddress = ip_list[i] };
@@ -133,32 +168,36 @@ namespace WebApplication25.Services
                         filesInfo = new FilesInfo() { Name = names[i], Path = urls[i], DataVolume = dataVolumes[i] };
                     }
 
+                    if ((appDbContext.IpInfo.Where(q => q.IPAddress == infoIp.IPAddress).Count() == 0) && appDbContext.FilesInfos.Where(q => q.Path == filesInfo.Path).Count() == 0)
+                    {
 
-                    MainTable mainTable = new MainTable()
-                    {
-                        DataVolume = dataVolumes[i],
-                        DateTime = dateTimes[i],
-                        DateTimeLog = dateTimeStr[i],
-                        FilesInfo = filesInfo,
-                        _IPinfo = infoIp,
-                        RequestType = request_types[i],
-                        RequestResult = results[i]
-                    };
-                    if (!mainTables.Contains(JsonConvert.SerializeObject(mainTable)))
-                    {
-                        mainTables.Add(JsonConvert.SerializeObject(mainTable));
-                        await appDbContext.MainTable.AddAsync(mainTable);
 
-                    }
-                    if (!files.Contains(JsonConvert.SerializeObject(filesInfo)))
-                    {
-                        files.Add(JsonConvert.SerializeObject(filesInfo));
-                        await appDbContext.FilesInfos.AddAsync(filesInfo);
-                    }
-                    if (!ip.Contains(JsonConvert.SerializeObject(infoIp)))
-                    {
-                        ip.Add(JsonConvert.SerializeObject(infoIp));
-                        await appDbContext.IpInfo.AddAsync(infoIp);
+                        MainTable mainTable = new MainTable()
+                        {
+                            DataVolume = dataVolumes[i],
+                            DateTime = dateTimes[i],
+                            DateTimeLog = dateTimeStr[i],
+                            FilesInfo = filesInfo,
+                            _IPinfo = infoIp,
+                            RequestType = request_types[i],
+                            RequestResult = results[i]
+                        };
+                        if (!mainTables.Contains(JsonConvert.SerializeObject(mainTable)))
+                        {
+                            mainTables.Add(JsonConvert.SerializeObject(mainTable));
+                            await appDbContext.MainTable.AddAsync(mainTable);
+
+                        }
+                        if (!files.Contains(JsonConvert.SerializeObject(filesInfo)))
+                        {
+                            files.Add(JsonConvert.SerializeObject(filesInfo));
+                            await appDbContext.FilesInfos.AddAsync(filesInfo);
+                        }
+                        if (!ip.Contains(JsonConvert.SerializeObject(infoIp)))
+                        {
+                            ip.Add(JsonConvert.SerializeObject(infoIp));
+                            await appDbContext.IpInfo.AddAsync(infoIp);
+                        }
                     }
                 }
                 await appDbContext.SaveChangesAsync();
@@ -272,14 +311,7 @@ namespace WebApplication25.Services
                     }
                 }
             });
-            //for (int i = 0; i < lines.Count; i++)
-            //{
-            //    var m = regex.Match(lines[i]);
-            //    if (m.Success)
-            //    {
-            //        tmp.Add(m.Value);
-            //    }
-            //}
+   
             return tmp;
 
         }
@@ -376,40 +408,14 @@ namespace WebApplication25.Services
                     }
 
                 }
-                //if (!done.ContainsKey(requests[i]))
-                //{
-                //    try
-                //    {
-                //        _s = await x.DownloadStringTaskAsync(stringBuilder.ToString());
-                //    }
-                //    catch (WebException e)
-                //    {
-                //        Logger.LogError($"{e.Message}, {e.Response}");
-                //    }
-                //}
-                //else
-                //{
-                //    _s = done[requests[i]];
-                //}
+            
                 string _data = String.Empty;
                 x.DownloadDataCompleted += (sender, e) =>
                 {
                     _data = Encoding.ASCII.GetString(e.Result);
                 };
 
-                //    x.DownloadStringAsync(new Uri(stringBuilder.ToString()));
-                // string source = x.DownloadString(stringBuilder.ToString());
-                //await Task.Run(() =>
-                //{
-                //    try {
-                //        _data = x.DownloadString(stringBuilder.ToString());
-                //    }
-                //    catch (WebException e)
-                //    {
-                //        Logger.LogError($"{e.Message}, {e.Response}");
-                //    }
-
-                //});
+         
 
                 string title = Regex.Match(_s, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
         RegexOptions.IgnoreCase).Groups["Title"].Value;
@@ -475,19 +481,7 @@ namespace WebApplication25.Services
                     _data = Encoding.ASCII.GetString(e.Result);
                 };
 
-                //    x.DownloadStringAsync(new Uri(stringBuilder.ToString()));
-                // string source = x.DownloadString(stringBuilder.ToString());
-                //await Task.Run(() =>
-                //{
-                //    try {
-                //        _data = x.DownloadString(stringBuilder.ToString());
-                //    }
-                //    catch (WebException e)
-                //    {
-                //        Logger.LogError($"{e.Message}, {e.Response}");
-                //    }
-
-                //});
+               
 
                 title = Regex.Match(_s, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
         RegexOptions.IgnoreCase).Groups["Title"].Value;
@@ -570,7 +564,7 @@ namespace WebApplication25.Services
             HttpClientHandler httpClientHandler = new HttpClientHandler();
             httpClientHandler.ServerCertificateCustomValidationCallback= (sender, cert, chain, sslPolicyErrors) => { return true; };
             using var cl = new HttpClient(httpClientHandler);
-            var api = new IpInfoApi("530f45ab84efc1", cl);
+            var api = new IpInfoApi("e233289eabbf1b", cl);
 
             var r = await api.GetOrganizationByIpAsync(_ip);
 

@@ -33,9 +33,15 @@ namespace WebApplication25
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddScoped<HandleLog>();
-            services.AddScoped<HandleLogParallel>();
           
+            services.AddScoped<HandleLog>();
+            services.AddScoped<HandleLogByLine>();
+            services.AddMemoryCache();
+            services.AddSession();
+            //Hosted services, for use  need comment data processing call in HomeController 
+          //  services.AddSingleton<IHostedService, HostService>();
+            //services.AddHostedService<HostedBackground>();
+
             services.AddDbContext<AppDbContext>(options =>options.UseLazyLoadingProxies().
       UseSqlServer(Configuration.GetConnectionString("Default")));
 
@@ -59,9 +65,11 @@ namespace WebApplication25
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
-            app.UseRouting();
+           app.UseRouting();
             
             app.UseAuthorization();
+            app.UseSession();
+
 
             app.UseEndpoints(endpoints =>
             {

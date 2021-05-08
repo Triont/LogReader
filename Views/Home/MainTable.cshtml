@@ -11,35 +11,22 @@
 @Html.ActionLink("Show files table", "FilesTable", "Home")
 
    
-<form asp-action="SearchInMain" asp-controller="Home">
+<form asp-action="MainTable" asp-controller="Home">
     <input type="search" asp-for="Search" />
     <input type ="submit" />
 </form>
 
-<form asp-action="GetFilterdedMainData" asp-controller="Home">
-@foreach(var i in Model.Filters)
+<form asp-action="MainTable" asp-controller="Home">
+<select name="filters" multiple> 
+    @foreach(var i in Model.Filters)
 {
     if (i != null)
     {
-          <label>@i</label>
-    if (Model.CheckedItems != null)
-            {
-                if(Model.CheckedItems.Contains(i))
-                {
-                     <input type="checkbox" name="filters" value="@i" checked="checked">
-                }
-                else
-                {
-                <input type="checkbox" name="filters" value="@i">
-    }
-    }
-    else
-            {
-                <input type="checkbox" name="filters" value="@i">
-            }
-      <text> &nbsp;&nbsp;</text>
+        
+            <option value="@i">@i</option>
 }
 }
+</select>
 <input type="submit" />
 </form>
 
@@ -58,7 +45,7 @@
         <th scope="col">Company name</th>
          <th scope="col">Data volume</th>
          <th scope="col">Request result</th>
-           <th scope="col">Datetime loggd</th>
+           <th scope="col">Datetime logged</th>
       
   
   

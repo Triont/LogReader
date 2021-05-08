@@ -16,40 +16,26 @@
 
    
 
-<form asp-action="SearchInIp" asp-controller="Home">
+<form asp-action="IpTable" asp-controller="Home">
     <input type="search" asp-for="_search" />
     <input type ="submit" />
 </form>
-<form asp-action="GetFilterdedIpData" asp-controller="Home">
-@foreach(var i in Model.Filters)
+<form asp-action="IpTable" asp-controller="Home">
+<select name="filters" multiple> 
+    @foreach(var i in Model.Filters)
 {
     if (i != null)
     {
-          <label>@i</label>
-              if (Model.CheckedItems != null)
-            {
-
-                if (Model.CheckedItems.Contains(i))
-                {
-                    <input type="checkbox" name="filters" value="@i" checked="checked">
-                }
-                else
-                {
-                    <input type="checkbox" name="filters" value="@i" >
-                }
-                <text> &nbsp;&nbsp;</text>
-    }
-    else
-            {
-                  <input type="checkbox" name="filters" value="@i" >  <text> &nbsp;&nbsp;</text>
-            }
+        
+            <option value="@i">@i</option>
 }
 }
+</select>
 <input type="submit" />
 </form>
   <table class="table table-striped" id="StatusTable">
               <thead>
-    <tr>
+    <tr class ="first" id="first">
     
       <th scope="col">Id</th>
      
@@ -68,7 +54,7 @@
         @foreach(var i in Model.IpData)
         {
           
-               <tr id="@i.Id" class="Element">
+               <tr id="@i.Id" class="@i.Id">
                    
                   <td  class="ID" rel="@i.Id">
                       
@@ -77,7 +63,7 @@
                   <td class="IpAddress" rel="@i.IPAddress">
                       @Encoding.ASCII.GetString(i.IPAddress)
                   </td>
-                  <td class="Name"  rel="@i.CompanyName">
+                  <td class="@i.CompanyName"  rel="@i.CompanyName">
                       @i.CompanyName
                   </td>
                
@@ -111,7 +97,6 @@ function comparer(index) {
     }
 }
 function getCellValue(row, index){ return $(row).children('td').eq(index).text() }
-
 
 
 
